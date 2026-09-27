@@ -169,7 +169,7 @@ const app = new Elysia()
 
     return shapeWord(doc);
   })
-  .listen(2999);
+  .listen(Number(process.env.PORT ?? 2999));
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
