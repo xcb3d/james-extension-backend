@@ -40,3 +40,10 @@ yarn-error.log*
 **/*.log
 package-lock.json
 **/*.bun
+
+# secrets
+.env
+
+# script artifacts
+/scripts
+/*.txt
