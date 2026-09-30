@@ -44,7 +44,9 @@ const verifyToken = (token: string): { userId: string } | null => {
 };
 
 const getUser = (req: Request) => {
-  const token = req.headers.get("authorization")?.replace(/^Bearer /i, "");
+  const token =
+    req.headers.get("authorization")?.replace(/^Bearer /i, "") ??
+    req.headers.get("cookie")?.match(/(?:^|;\s*)twj_session=([^;]*)/)?.[1];
   return token ? verifyToken(token) : null;
 };
 
@@ -427,6 +429,7 @@ const app = new Elysia()
     cors({
       origin: /^(chrome|moz|safari-web)-extension:\/\//,
       allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
     })
   )
   .onBeforeHandle(({ request, status, path }) => {
