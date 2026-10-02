@@ -513,8 +513,10 @@ app.post("/api/define-ai", async (c) => {
 app.get("/api/suggest", async (c) => {
   const q = (c.req.query("q") ?? "").trim().toLowerCase();
   if (!q) return c.json({ suggestions: [] });
+  // COLLATE NOCASE để LIKE 'prefix%' đi qua words_word_nocase index —
+  // không có nó thì mỗi keystroke full-scan 18k rows.
   const { results } = await env.DB.prepare(
-    "SELECT data FROM words WHERE word LIKE ? ESCAPE '\\' LIMIT 8"
+    "SELECT data FROM words WHERE word COLLATE NOCASE LIKE ? ESCAPE '\\' LIMIT 8"
   )
     .bind(`${likeEsc(q)}%`)
     .all();
@@ -532,9 +534,13 @@ app.get("/api/suggest", async (c) => {
 });
 
 app.get("/api/random", async (c) => {
+  // Probe rowid ngẫu nhiên — ORDER BY RANDOM() phải đọc+sort cả bảng,
+  // còn cách này chỉ 1 index seek (max(rowid) là O(1)).
   const doc = docOf(
     await env.DB.prepare(
-      "SELECT data FROM words ORDER BY RANDOM() LIMIT 1"
+      `SELECT data FROM words
+       WHERE rowid >= abs(random() % (SELECT max(rowid) + 1 FROM words))
+       LIMIT 1`
     ).first()
   );
   if (!doc) return c.json({ error: "no words found" }, 404);
@@ -556,8 +562,10 @@ app.get("/api/words", async (c) => {
   let where = "WHERE userId = ?";
   const binds: (string | number)[] = [userId];
   if (q) {
+    // Substring LIKE không dùng index được — probe theo PK words trên
+    // saved_words của user (vài trăm rows) thay vì quét cả dictionary.
     where +=
-      " AND wordId IN (SELECT id FROM words WHERE word LIKE ? ESCAPE '\\' LIMIT 1000)";
+      " AND EXISTS (SELECT 1 FROM words w WHERE w.id = saved_words.wordId AND w.word LIKE ? ESCAPE '\\')";
     binds.push(`%${likeEsc(q)}%`);
   }
   const cursor = c.req.query("cursor");
