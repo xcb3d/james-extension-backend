@@ -47,3 +47,11 @@ package-lock.json
 # script artifacts
 /scripts
 /*.txt
+
+# wrangler local + deploy config (không commit)
+/.dev.vars
+/.wrangler/
+/wrangler.toml
+/schema.sql
+/migration.sql
+/migration-extra.sql

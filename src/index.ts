@@ -1,38 +1,68 @@
-import { S3Client } from "bun";
-import { Elysia, t } from "elysia";
-import { cors } from "@elysiajs/cors";
-import { MongoClient, ObjectId, type Collection } from "mongodb";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
 
-let words: Collection | null = null;
-let saved: Collection | null = null;
-let wordOps: Collection | null = null;
-let membershipMeta: Collection | null = null;
-let reviewStats: Collection | null = null;
-let notifyClaims: Collection | null = null;
-
-const mongoUri = process.env.MONGO_URI;
-if (!mongoUri) {
-  console.error("MONGO_URI is not set (expected in .env)");
-  process.exit(1);
+// Worker thuần: bindings/secrets đọc từ env (stash ở guard middleware —
+// helpers không nhận c). Không còn Mongo, S3Client, node:crypto.
+// Env global interface do `wrangler types` sinh; augment thêm optional vars.
+declare global {
+  interface Env {
+    AI_API_URL?: string;
+    AI_API_KEY?: string;
+    AI_MODEL?: string;
+    AI_DAILY_LIMIT?: string;
+  }
 }
+let env: Env;
 
-const sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret) {
-  console.error("SESSION_SECRET is not set (expected in .env)");
-  process.exit(1);
-}
+// ObjectId.isValid tương đương + id mới (24-hex) cho words/ops/claims.
+const isOid = (v: unknown): v is string =>
+  typeof v === "string" && /^[0-9a-fA-F]{24}$/.test(v);
+const newOid = () =>
+  [...crypto.getRandomValues(new Uint8Array(12))]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+const b64u = (s: string): Uint8Array =>
+  Uint8Array.from(
+    atob(
+      s.replace(/-/g, "+").replace(/_/g, "/") +
+        "=".repeat((4 - (s.length % 4)) % 4)
+    ),
+    (c) => c.charCodeAt(0)
+  );
 
 // Verifies the HS256 JWT the website issues (twj_session). Any valid,
-// unexpired token passes — all roles allowed.
-const verifyToken = (token: string): { userId: string } | null => {
+// unexpired token passes — all roles allowed. Key lazy-import vì env chỉ
+// có sau request đầu tiên.
+let _hmacKey: Promise<CryptoKey> | null = null;
+const hmacKey = () =>
+  (_hmacKey ??= crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(env.SESSION_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  ));
+
+const verifyToken = async (
+  token: string
+): Promise<{ userId: string } | null> => {
   const [h, p, s] = token.split(".");
   if (!h || !p || !s) return null;
-  const sig = createHmac("sha256", sessionSecret).update(`${h}.${p}`).digest();
-  const expect = Buffer.from(s, "base64url");
-  if (sig.length !== expect.length || !timingSafeEqual(sig, expect)) return null;
+  const sig = new Uint8Array(
+    await crypto.subtle.sign(
+      "HMAC",
+      await hmacKey(),
+      new TextEncoder().encode(`${h}.${p}`)
+    )
+  );
+  const expect = b64u(s);
+  if (sig.length !== expect.length) return null;
+  let diff = 0;
+  for (let i = 0; i < sig.length; i++) diff |= sig[i] ^ expect[i];
+  if (diff !== 0) return null;
   try {
-    const payload = JSON.parse(Buffer.from(p, "base64url").toString());
+    const payload = JSON.parse(new TextDecoder().decode(b64u(p)));
     if (
       typeof payload.userId === "string" &&
       typeof payload.exp === "number" &&
@@ -43,66 +73,28 @@ const verifyToken = (token: string): { userId: string } | null => {
   return null;
 };
 
-const getUser = (req: Request) => {
+const getUser = async (req: Request) => {
   const token =
     req.headers.get("authorization")?.replace(/^Bearer /i, "") ??
     req.headers.get("cookie")?.match(/(?:^|;\s*)twj_session=([^;]*)/)?.[1];
   return token ? verifyToken(token) : null;
 };
 
-new MongoClient(mongoUri)
-  .connect()
-  .then((c) => {
-    const db = c.db("james-extension");
-    words = db.collection("words");
-    saved = db.collection("saved_words");
-    wordOps = db.collection("word_ops");
-    membershipMeta = db.collection("membership_meta");
-    reviewStats = db.collection("review_stats");
-    notifyClaims = db.collection("notification_claims");
-    notifyClaims
-      .createIndex({ userId: 1, kind: 1, dayVN: 1 }, { unique: true })
-      .catch((e) => console.error("claims index failed:", e));
-    saved
-      .createIndex({ userId: 1, wordId: 1 }, { unique: true })
-      .catch((e) => console.error("saved index failed:", e));
-    wordOps
-      .createIndex({ userId: 1, operationId: 1 }, { unique: true })
-      .catch((e) => console.error("word_ops index failed:", e));
-    membershipMeta
-      // CAS theo revision cần 1 doc/user — upsert song song đụng unique
-      // index thay vì tạo doc đôi.
-      .createIndex({ userId: 1 }, { unique: true })
-      .catch((e) => console.error("membership_meta index failed:", e));
-    console.log("mongo connected");
-  })
-  .catch((e) => console.error("mongo connect failed:", e));
+// LIKE escape — chỉ \\, %, _ cần escape (Mongo regex escape nhiều hơn).
+const likeEsc = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
-const PROJECTION = {
-  word: 1,
-  phonetic: 1,
-  phonetic_us: 1,
-  phonetic_uk: 1,
-  pos: 1,
-  senses: 1,
-  target_parts: 1,
-  confusable_with: 1,
-  synonyms: 1,
-  related: 1,
-  forms: 1,
-  word_family: 1,
-  phrases: 1,
-  dependent_preposition: 1,
-  toeic_tip: 1,
-  antonyms: 1,
-  primary_example: 1,
-  examples: 1,
-  level: 1,
-  ai_generated: 1,
-  audio_url: 1,
-  audio_us: 1,
-  audio_uk: 1,
-  image_url: 1,
+const docOf = (row: any) => (row ? JSON.parse(row.data) : null);
+
+// IN-list qua json_each — D1 cap ~100 bound params/statement nên không
+// bung (?,?,...) được cho danh sách dài.
+const findWords = async (ids: string[]) => {
+  if (!ids.length) return [];
+  const { results } = await env.DB.prepare(
+    "SELECT data FROM words WHERE id IN (SELECT value FROM json_each(?))"
+  )
+    .bind(JSON.stringify(ids))
+    .all();
+  return (results ?? []).map(docOf);
 };
 
 const POS_RE =
@@ -155,8 +147,9 @@ function shapeWord(doc: any) {
   };
 }
 
-// ponytail: in-memory per-IP limiter — resets on restart, won't scale
-// across multiple instances; upgrade path = Redis or edge rule (CF rate limiting).
+// ponytail: in-memory per-isolate limiter — Workers giờ limiter theo
+// isolate chứ không theo process, ceiling y hệt; upgrade path = CF rate
+// limiting rule hoặc counter trong D1.
 const WINDOW_MS = 60_000;
 const LIMIT = 60;
 const hits = new Map<string, { n: number; t: number }>();
@@ -173,30 +166,15 @@ const allowed = (ip: string) => {
 // --- AI word generation ---------------------------------------------------
 // Prompt + hậu xử lý mirror scripts/gen-word.ts để doc AI-gen giống hệt
 // doc seed: pos token ngắn, senses sạch, phrases/word_family/dep_prep đủ.
-// Media: audio TTS Fish Audio → upload R2 → CDN (giống gen-audio-r2.ts);
+// Media: audio TTS Fish Audio → R2 binding → CDN (giống gen-audio-r2.ts);
 // không gen ảnh. Thiếu key → fallback youdao, không chặn flow.
-const AI_API_URL =
-  process.env.AI_API_URL ?? "https://api.openai.com/v1/chat/completions";
-const AI_API_KEY = process.env.AI_API_KEY ?? process.env.OPENAI_API_KEY;
-const AI_MODEL = process.env.AI_MODEL ?? process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+const aiKey = () => env.AI_API_KEY ?? env.OPENAI_API_KEY;
 
 // Fish Audio TTS + R2 (mirror gen-audio-r2.ts) — voice US/UK cố định của hệ thống.
-const FISH_API_KEY = process.env.FISH_API_KEY;
 const FISH_VOICES = {
   us: "078eaa5208ca42a1909d2e6fac9c93f7",
   uk: "3a53a827d801434cb1505de0121b8e01",
 } as const;
-const R2_PUBLIC = process.env.R2_PUBLIC ?? "https://cdn.toeicwithjames.com";
-const r2 =
-  process.env.R2_ENDPOINT && process.env.R2_ACCESS_KEY && process.env.R2_SECRET_KEY
-    ? new S3Client({
-        endpoint: process.env.R2_ENDPOINT,
-        accessKeyId: process.env.R2_ACCESS_KEY,
-        secretAccessKey: process.env.R2_SECRET_KEY,
-        bucket: process.env.R2_BUCKET ?? "james-toeic",
-        region: "auto",
-      })
-    : null;
 
 async function ttsFish(text: string, refId: string): Promise<ArrayBuffer | null> {
   for (let i = 0; i < 3; i++) {
@@ -205,7 +183,7 @@ async function ttsFish(text: string, refId: string): Promise<ArrayBuffer | null>
         method: "POST",
         signal: AbortSignal.timeout(15_000),
         headers: {
-          Authorization: `Bearer ${FISH_API_KEY}`,
+          Authorization: `Bearer ${env.FISH_API_KEY}`,
           "Content-Type": "application/json",
           model: "s2.1-pro-free",
         },
@@ -235,15 +213,14 @@ const aiAllowed = (ip: string) => {
   return ++e.n <= AI_LIMIT;
 };
 // ponytail: cap theo user/ngày — in-memory, reset khi restart, đủ để chặn
-// lạm dụng nhẹ; nếu cần cứng hơn thì đếm trong Mongo.
-const AI_DAILY = Number(process.env.AI_DAILY_LIMIT ?? 30);
+// lạm dụng nhẹ; nếu cần cứng hơn thì đếm trong D1.
 const aiUserHits = new Map<string, number>();
 const aiDailyAllowed = (userId: string) => {
   // Ngày theo giờ VN.
   const day = new Date(Date.now() + 7 * 3_600_000).toISOString().slice(0, 10);
   const k = `${userId}:${day}`;
   const n = aiUserHits.get(k) ?? 0;
-  if (n >= AI_DAILY) return false;
+  if (n >= Number(env.AI_DAILY_LIMIT ?? 30)) return false;
   aiUserHits.set(k, n + 1);
   return true;
 };
@@ -306,20 +283,23 @@ async function genWordEntry(w: string) {
       )
       .filter((x: string) => x && x !== w);
   try {
-    const r = await fetch(AI_API_URL, {
-      method: "POST",
-      signal: AbortSignal.timeout(30_000),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${AI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        // không gửi temperature — model mới chỉ nhận default.
-        response_format: { type: "json_object" },
-        messages: [{ role: "user", content: AI_PROMPT(w) }],
-      }),
-    });
+    const r = await fetch(
+      env.AI_API_URL ?? "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        signal: AbortSignal.timeout(30_000),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${aiKey()}`,
+        },
+        body: JSON.stringify({
+          model: env.AI_MODEL ?? env.OPENAI_MODEL ?? "gpt-4o-mini",
+          // không gửi temperature — model mới chỉ nhận default.
+          response_format: { type: "json_object" },
+          messages: [{ role: "user", content: AI_PROMPT(w) }],
+        }),
+      }
+    );
     if (!r.ok) {
       console.error("ai gen", r.status, await r.text().catch(() => ""));
       return null;
@@ -356,7 +336,7 @@ async function genWordEntry(w: string) {
     );
     let audio_us: string | null = null;
     let audio_uk: string | null = null;
-    if (FISH_API_KEY && r2) {
+    if (env.FISH_API_KEY) {
       const [usBuf, ukBuf] = await Promise.all([
         ttsFish(finalWord, FISH_VOICES.us),
         ttsFish(finalWord, FISH_VOICES.uk),
@@ -364,19 +344,24 @@ async function genWordEntry(w: string) {
       try {
         if (usBuf) {
           const k = `audio/us/${safeName}.mp3`;
-          await r2.file(k).write(usBuf, { type: "audio/mpeg" });
-          audio_us = `${R2_PUBLIC}/${k}`;
+          await env.R2.put(k, usBuf, {
+            httpMetadata: { contentType: "audio/mpeg" },
+          });
+          audio_us = `${env.R2_PUBLIC ?? "https://cdn.toeicwithjames.com"}/${k}`;
         }
         if (ukBuf) {
           const k = `audio/uk/${safeName}.mp3`;
-          await r2.file(k).write(ukBuf, { type: "audio/mpeg" });
-          audio_uk = `${R2_PUBLIC}/${k}`;
+          await env.R2.put(k, ukBuf, {
+            httpMetadata: { contentType: "audio/mpeg" },
+          });
+          audio_uk = `${env.R2_PUBLIC ?? "https://cdn.toeicwithjames.com"}/${k}`;
         }
       } catch (e) {
         console.error("r2 upload failed:", e);
       }
     }
     const youdao = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(finalWord)}&type=2`;
+    const now = new Date().toISOString();
 
     return {
       word: finalWord,
@@ -410,10 +395,10 @@ async function genWordEntry(w: string) {
       related: synonyms,
       antonyms: [...new Set(wordsOf(gen.antonyms))].slice(0, 5),
       level: typeof gen.level === "string" && /^[ABC][12]$/i.test(gen.level) ? gen.level.toUpperCase() : null,
-      updated_at: new Date(),
+      updated_at: now,
       tags: ["ai-gen"],
       ai_generated: true,
-      created_at: new Date(),
+      created_at: now,
       audio_url: audio_us ?? youdao,
       audio_us: audio_us ?? youdao,
       audio_uk: audio_uk,
@@ -424,423 +409,456 @@ async function genWordEntry(w: string) {
   }
 }
 
-const app = new Elysia()
-  .use(
-    cors({
-      origin: /^(chrome|moz|safari-web)-extension:\/\//,
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true,
-    })
+const app = new Hono<{ Bindings: Env }>();
+
+app.use(
+  "*",
+  cors({
+    origin: (origin) =>
+      /^(chrome|moz|safari-web)-extension:\/\//.test(origin) ? origin : null,
+    allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+app.use("/api/*", async (c, next) => {
+  env = c.env;
+  if (c.req.path === "/api/health") return next();
+  const ip =
+    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!allowed(ip)) return c.json({ error: "too many requests" }, 429);
+  if (!(await getUser(c.req.raw))) return c.json({ error: "unauthorized" }, 401);
+  return next();
+});
+
+app.get("/api/health", (c) => c.json({ ok: true }));
+
+app.get("/api/define", async (c) => {
+  const word = (c.req.query("word") ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/['’]s$/, "")
+    .replace(/['’]$/, "");
+  if (!word) return c.json({ error: "missing word" }, 400);
+
+  const lookup = (w: string) =>
+    env.DB.prepare(
+      "SELECT data FROM words WHERE search_key = ? OR word = ? LIMIT 1"
+    )
+      .bind(w, w)
+      .first();
+
+  const candidates = [word];
+  if (word.endsWith("s") && word.length > 3) candidates.push(word.slice(0, -1));
+  if (word.endsWith("ies")) candidates.push(word.slice(0, -3) + "y");
+  if (word.includes("-")) candidates.push(word.split("-").pop()!);
+
+  let doc = null;
+  for (const cand of candidates) {
+    doc = docOf(await lookup(cand));
+    if (doc) break;
+  }
+  if (!doc) return c.json({ error: "not found" }, 404);
+
+  return c.json(shapeWord(doc));
+});
+
+app.post("/api/define-ai", async (c) => {
+  if (!aiKey()) return c.json({ error: "ai not configured" }, 503);
+  const body: any = await c.req.json().catch(() => null);
+  const word = String(body?.word ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/['’]s$/, "")
+    .replace(/['’]$/, "");
+  // Chỉ nhận 1 từ đơn — chặn câu/cụm/rác trước khi tốn quota/tiền AI.
+  if (!/^[a-z][a-z'’\-]{1,30}$/i.test(word))
+    return c.json({ error: "invalid word" }, 400);
+
+  const ip =
+    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!aiAllowed(ip)) return c.json({ error: "too many requests" }, 429);
+  if (!aiDailyAllowed((await getUser(c.req.raw))!.userId))
+    return c.json({ error: "daily ai quota reached" }, 429);
+
+  // Doc đã tồn tại (race hoặc vừa được gen) → trả luôn, không gọi AI.
+  const exist = docOf(
+    await env.DB.prepare(
+      "SELECT data FROM words WHERE search_key = ? OR word = ? LIMIT 1"
+    )
+      .bind(word, word)
+      .first()
+  );
+  if (exist) return c.json(shapeWord(exist));
+
+  const ai = await genWordEntry(word);
+  if (!ai) return c.json({ error: "ai failed" }, 502);
+
+  // Insert-or-ignore + đọc lại: 2 request cùng gen một từ thì request sau
+  // nhận doc request trước tạo — không bao giờ 2 doc trùng search_key.
+  const id = newOid();
+  await env.DB.prepare(
+    "INSERT OR IGNORE INTO words(id, word, search_key, data) VALUES (?,?,?,?)"
   )
-  .onBeforeHandle(({ request, status, path }) => {
-    if (path === "/api/health") return;
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      "unknown";
-    if (!allowed(ip)) return status(429, { error: "too many requests" });
-    if (!getUser(request)) return status(401, { error: "unauthorized" });
-  })
-  .get("/api/health", () => ({ ok: true }))
-  .get("/api/define", async ({ query, status }) => {
-    const word = (query.word ?? "")
-      .trim()
-      .toLowerCase()
-      .replace(/['’]s$/, "")
-      .replace(/['’]$/, "");
-    if (!word) return status(400, { error: "missing word" });
-    if (!words) return status(503, { error: "db not ready" });
+    .bind(id, ai.word, word, JSON.stringify({ _id: id, ...ai }))
+    .run();
+  const doc = docOf(
+    await env.DB.prepare("SELECT data FROM words WHERE search_key = ? LIMIT 1")
+      .bind(word)
+      .first()
+  );
+  return c.json(shapeWord(doc));
+});
 
-    const lookup = (w: string) =>
-      words!.findOne({ $or: [{ search_key: w }, { word: w }] }, { projection: PROJECTION });
+app.get("/api/suggest", async (c) => {
+  const q = (c.req.query("q") ?? "").trim().toLowerCase();
+  if (!q) return c.json({ suggestions: [] });
+  const { results } = await env.DB.prepare(
+    "SELECT data FROM words WHERE word LIKE ? ESCAPE '\\' LIMIT 8"
+  )
+    .bind(`${likeEsc(q)}%`)
+    .all();
 
-    const candidates = [word];
-    if (word.endsWith("s") && word.length > 3) candidates.push(word.slice(0, -1));
-    if (word.endsWith("ies")) candidates.push(word.slice(0, -3) + "y");
-    if (word.includes("-")) candidates.push(word.split("-").pop()!);
-
-    let doc = null;
-    for (const c of candidates) {
-      doc = await lookup(c);
-      if (doc) break;
-    }
-    if (!doc) return status(404, { error: "not found" });
-
-    return shapeWord(doc);
-  })
-  .post("/api/define-ai", async ({ request, body, status }) => {
-    if (!words) return status(503, { error: "db not ready" });
-    if (!AI_API_KEY) return status(503, { error: "ai not configured" });
-    const word = String((body as any)?.word ?? "")
-      .trim()
-      .toLowerCase()
-      .replace(/['’]s$/, "")
-      .replace(/['’]$/, "");
-    // Chỉ nhận 1 từ đơn — chặn câu/cụm/rác trước khi tốn quota/tiền AI.
-    if (!/^[a-z][a-z'’\-]{1,30}$/i.test(word))
-      return status(400, { error: "invalid word" });
-
-    const ip =
-      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    if (!aiAllowed(ip)) return status(429, { error: "too many requests" });
-    if (!aiDailyAllowed(getUser(request)!.userId))
-      return status(429, { error: "daily ai quota reached" });
-
-    // Doc đã tồn tại (race hoặc vừa được gen) → trả luôn, không gọi AI.
-    const exist = await words.findOne(
-      { $or: [{ search_key: word }, { word }] },
-      { projection: PROJECTION }
-    );
-    if (exist) return shapeWord(exist);
-
-    const ai = await genWordEntry(word);
-    if (!ai) return status(502, { error: "ai failed" });
-
-    // Upsert + $setOnInsert: 2 request cùng gen một từ thì request sau
-    // nhận doc request trước tạo — không bao giờ 2 doc trùng search_key.
-    const doc = await words.findOneAndUpdate(
-      { search_key: word },
-      { $setOnInsert: ai },
-      { upsert: true, returnDocument: "after" }
-    );
-    return shapeWord(doc);
-  })
-  .get("/api/suggest", async ({ query }) => {
-    const q = (query.q ?? "").trim().toLowerCase();
-    if (!q || !words) return { suggestions: [] };
-    const regex = new RegExp(`^${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i");
-    const docs = await words
-      .find({ word: regex })
-      .project({ word: 1, phonetic: 1, senses: 1 })
-      .limit(8)
-      .toArray();
-
-    return {
-      suggestions: docs.map((d) => ({
+  return c.json({
+    suggestions: (results ?? []).map((r: any) => {
+      const d = JSON.parse(r.data);
+      return {
         word: d.word,
         phonetic: d.phonetic,
         meaning: d.senses?.[0] || "",
-      })),
-    };
-  })
-  .get("/api/random", async ({ status }) => {
-    if (!words) return status(503, { error: "db not ready" });
-    const [doc] = await words.aggregate([{ $sample: { size: 1 } }]).toArray();
-    if (!doc) return status(404, { error: "no words found" });
+      };
+    }),
+  });
+});
 
-    return shapeWord(doc);
-  })
+app.get("/api/random", async (c) => {
+  const doc = docOf(
+    await env.DB.prepare(
+      "SELECT data FROM words ORDER BY RANDOM() LIMIT 1"
+    ).first()
+  );
+  if (!doc) return c.json({ error: "no words found" }, 404);
 
-  // --- Saved words: only {userId, wordId, savedAt} — word data is
-  // resolved fresh from the dictionary so site edits propagate.
-  // Không param → full list (isWordSaved, badge). Có `limit` → phân trang
-  // cursor `${savedAt}_${id}` của item cuối trang trước — ổn định khi có
-  // item mới chen vào đầu danh sách.
-  .get("/api/words", async ({ request, query, status }) => {
-    if (!saved || !words) return status(503, { error: "db not ready" });
-    const userId = getUser(request)!.userId;
-    if (!query.limit) return { words: await listSaved(userId) };
-    const q = (query.q ?? "").trim().toLowerCase();
-    const limit = Math.min(Number(query.limit) || 20, 50);
+  return c.json(shapeWord(doc));
+});
 
-    const filter: any = { userId };
-    if (q) {
-      const esc = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const ids = await words
-        .find({ word: { $regex: esc, $options: "i" } }, { projection: { _id: 1 } })
-        .limit(1000)
-        .toArray();
-      if (!ids.length) return { words: [], nextCursor: null, total: 0 };
-      filter.wordId = { $in: ids.map((d) => d._id) };
+// --- Saved words: only {userId, wordId, savedAt} — word data is
+// resolved fresh from the dictionary so site edits propagate.
+// Không param → full list (isWordSaved, badge). Có `limit` → phân trang
+// cursor `${savedAt}_${id}` của item cuối trang trước — ổn định khi có
+// item mới chen vào đầu danh sách.
+app.get("/api/words", async (c) => {
+  const userId = (await getUser(c.req.raw))!.userId;
+  if (!c.req.query("limit")) return c.json({ words: await listSaved(userId) });
+  const q = (c.req.query("q") ?? "").trim().toLowerCase();
+  const limit = Math.min(Number(c.req.query("limit")) || 20, 50);
+
+  let where = "WHERE userId = ?";
+  const binds: (string | number)[] = [userId];
+  if (q) {
+    where +=
+      " AND wordId IN (SELECT id FROM words WHERE word LIKE ? ESCAPE '\\' LIMIT 1000)";
+    binds.push(`%${likeEsc(q)}%`);
+  }
+  const cursor = c.req.query("cursor");
+  if (cursor) {
+    const [ts, id] = cursor.split("_");
+    const t = Number(ts);
+    if (Number.isFinite(t) && isOid(id)) {
+      where += " AND (savedAt < ? OR (savedAt = ? AND id < ?))";
+      binds.push(t, t, id);
     }
-    if (query.cursor) {
-      const [ts, id] = String(query.cursor).split("_");
-      const t = Number(ts);
-      if (Number.isFinite(t) && ObjectId.isValid(id))
-        filter.$or = [
-          { savedAt: { $lt: t } },
-          { savedAt: t, _id: { $lt: new ObjectId(id) } },
-        ];
-    }
+  }
 
-    const [total, docs] = await Promise.all([
-      saved.countDocuments(filter),
-      saved
-        .find(filter)
-        .sort({ savedAt: -1, _id: -1 })
-        .limit(limit + 1)
-        .toArray(),
-    ]);
-    const page = docs.slice(0, limit);
-    const byId = new Map(
-      (
-        await words
-          .find(
-            { _id: { $in: page.map((d) => d.wordId) } },
-            { projection: PROJECTION }
-          )
-          .toArray()
-      ).map((d) => [String(d._id), d])
+  const [totalRow, pageRes] = await Promise.all([
+    env.DB.prepare(`SELECT COUNT(*) n FROM saved_words ${where}`)
+      .bind(...binds)
+      .first(),
+    env.DB.prepare(
+      `SELECT id, wordId, savedAt FROM saved_words ${where} ORDER BY savedAt DESC, id DESC LIMIT ?`
+    )
+      .bind(...binds, limit + 1)
+      .all(),
+  ]);
+  const docs = pageRes.results ?? [];
+  const page = docs.slice(0, limit);
+  const byId = new Map(
+    (await findWords(page.map((d: any) => d.wordId))).map((d: any) => [
+      String(d._id),
+      d,
+    ])
+  );
+  const list = page
+    .filter((d: any) => byId.has(String(d.wordId)))
+    .map((d: any) => shapeWord(byId.get(String(d.wordId))!));
+  const last = page[page.length - 1];
+  const nextCursor =
+    docs.length > limit && last ? `${last.savedAt}_${last.id}` : null;
+  return c.json({ words: list, nextCursor, total: (totalRow as any)?.n ?? 0 });
+});
+
+// /api/words/toggle đã bỏ — không idempotent (retry lật trạng thái).
+// Mọi client giờ dùng /api/words/set với operationId + expectedRevision.
+// Membership set với operationId idempotent: retry cùng operationId trả
+// receipt cũ, không apply lại. Mỗi op bump revision; gỡ từ còn bump
+// epoch → client phát hiện state cũ đã vô hiệu (attempt sync).
+app.post("/api/words/set", async (c) => {
+  const body: any = await c.req.json().catch(() => null);
+  if (!isOid(body?.wordId)) return c.json({ error: "invalid wordId" }, 400);
+  if (typeof body.saved !== "boolean")
+    return c.json({ error: "invalid saved" }, 400);
+  if (typeof body.operationId !== "string" || !body.operationId)
+    return c.json({ error: "invalid operationId" }, 400);
+  const userId = (await getUser(c.req.raw))!.userId;
+  const wordId: string = body.wordId;
+
+  // Replay → trả receipt cũ nguyên vẹn.
+  const prev = await env.DB.prepare(
+    "SELECT saved, revision, epoch FROM word_ops WHERE userId = ? AND operationId = ?"
+  )
+    .bind(userId, body.operationId)
+    .first();
+  if (prev) {
+    return c.json({
+      saved: !!(prev as any).saved,
+      revision: (prev as any).revision,
+      epoch: (prev as any).epoch,
+      replayed: true,
+      words: await listSaved(userId),
+    });
+  }
+  if (
+    !(await env.DB.prepare("SELECT 1 x FROM words WHERE id = ?")
+      .bind(wordId)
+      .first())
+  )
+    return c.json({ error: "word not in dictionary" }, 404);
+
+  // Apply membership + bump revision (+epoch nếu gỡ từ). Client gửi
+  // expectedRevision → CAS qua WHERE trên DO UPDATE: lệch thì statement
+  // không ghi, RETURNING rỗng → 409 để refetch; không gửi → last-writer-
+  // wins (client cũ). Một statement duy nhất nên không còn retry-path.
+  const epochBump = body.saved ? 0 : 1;
+  const expected = body.expectedRevision;
+  const meta =
+    expected == null
+      ? await env.DB.prepare(
+          `INSERT INTO membership_meta(userId, revision, epoch) VALUES (?, 1, ?)
+           ON CONFLICT(userId) DO UPDATE SET
+             revision = revision + 1, epoch = epoch + ?
+           RETURNING revision, epoch`
+        )
+          .bind(userId, epochBump, epochBump)
+          .first()
+      : await env.DB.prepare(
+          `INSERT INTO membership_meta(userId, revision, epoch) VALUES (?, 1, ?)
+           ON CONFLICT(userId) DO UPDATE SET
+             revision = revision + 1, epoch = epoch + ?
+           WHERE membership_meta.revision = ?
+           RETURNING revision, epoch`
+        )
+          .bind(userId, epochBump, epochBump, expected)
+          .first();
+  if (!meta) {
+    const cur = await env.DB.prepare(
+      "SELECT revision, epoch FROM membership_meta WHERE userId = ?"
+    )
+      .bind(userId)
+      .first();
+    return c.json(
+      {
+        conflict: true,
+        revision: (cur as any)?.revision ?? 0,
+        epoch: (cur as any)?.epoch ?? 0,
+      },
+      409
     );
-    const list = page
-      .filter((d) => byId.has(String(d.wordId)))
-      .map((d) => shapeWord(byId.get(String(d.wordId))!));
-    const last = page[page.length - 1];
-    const nextCursor =
-      docs.length > limit && last ? `${last.savedAt}_${last._id}` : null;
-    return { words: list, nextCursor, total };
-  })
-  // /api/words/toggle đã bỏ — không idempotent (retry lật trạng thái).
-  // Mọi client giờ dùng /api/words/set với operationId + expectedRevision.
-  // Membership set với operationId idempotent: retry cùng operationId trả
-  // receipt cũ, không apply lại. Mỗi op bump revision; gỡ từ còn bump
-  // epoch → client phát hiện state cũ đã vô hiệu (attempt sync).
-  .post(
-    "/api/words/set",
-    async ({ request, body, status }) => {
-      if (!saved || !words || !wordOps || !membershipMeta)
-        return status(503, { error: "db not ready" });
-      if (typeof body.wordId !== "string" || !ObjectId.isValid(body.wordId))
-        return status(400, { error: "invalid wordId" });
-      if (typeof body.saved !== "boolean")
-        return status(400, { error: "invalid saved" });
-      if (typeof body.operationId !== "string" || !body.operationId)
-        return status(400, { error: "invalid operationId" });
-      const userId = getUser(request)!.userId;
-      const wordId = new ObjectId(body.wordId);
+  }
+  const revision = (meta as any).revision as number;
+  const epoch = (meta as any).epoch as number;
 
-      // Replay → trả receipt cũ nguyên vẹn.
-      const prev = await wordOps.findOne({ userId, operationId: body.operationId });
-      if (prev) {
-        return {
-          saved: prev.saved,
-          revision: prev.revision,
-          epoch: prev.epoch,
-          replayed: true,
-          words: await listSaved(userId),
-        };
-      }
-      if (!(await words.findOne({ _id: wordId }, { projection: { _id: 1 } })))
-        return status(404, { error: "word not in dictionary" });
+  if (body.saved) {
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO saved_words(id, userId, wordId, savedAt) VALUES (?,?,?,?)"
+    )
+      .bind(newOid(), userId, wordId, Date.now())
+      .run();
+  } else {
+    await env.DB.prepare(
+      "DELETE FROM saved_words WHERE userId = ? AND wordId = ?"
+    )
+      .bind(userId, wordId)
+      .run();
+  }
+  // Ghi receipt op — conflict = ai đó apply trước → đọc lại.
+  const ins = await env.DB.prepare(
+    "INSERT OR IGNORE INTO word_ops(id, userId, operationId, wordId, saved, revision, epoch, at) VALUES (?,?,?,?,?,?,?,?)"
+  )
+    .bind(
+      newOid(),
+      userId,
+      body.operationId,
+      wordId,
+      body.saved ? 1 : 0,
+      revision,
+      epoch,
+      Date.now()
+    )
+    .run();
+  if (!ins.meta.changes) {
+    const p = await env.DB.prepare(
+      "SELECT saved, revision, epoch FROM word_ops WHERE userId = ? AND operationId = ?"
+    )
+      .bind(userId, body.operationId)
+      .first();
+    if (p)
+      return c.json({
+        saved: !!(p as any).saved,
+        revision: (p as any).revision,
+        epoch: (p as any).epoch,
+        replayed: true,
+        words: await listSaved(userId),
+      });
+  }
+  return c.json({
+    saved: body.saved,
+    revision,
+    epoch,
+    words: await listSaved(userId),
+  });
+});
 
-      // Apply membership + bump revision (+epoch nếu gỡ từ). Client gửi
-      // expectedRevision → CAS: lệch thì 409 để refetch thay vì 2 thiết bị
-      // ghi đè lặng lẽ; không gửi → last-writer-wins (client cũ).
-      const bump: Record<string, number> = { revision: 1 };
-      if (!body.saved) bump.epoch = 1;
-      const expected = body.expectedRevision;
-      let meta = null;
-      try {
-        meta =
-          expected == null
-            ? await membershipMeta.findOneAndUpdate(
-                { userId },
-                { $inc: bump, $setOnInsert: { userId } },
-                { upsert: true, returnDocument: "after" }
-              )
-            : await membershipMeta.findOneAndUpdate(
-                expected === 0
-                  ? {
-                      userId,
-                      $or: [{ revision: 0 }, { revision: { $exists: false } }],
-                    }
-                  : { userId, revision: expected },
-                { $inc: bump, $setOnInsert: { userId } },
-                { upsert: true, returnDocument: "after" }
-              );
-      } catch (e: any) {
-        // Upsert đụng doc có sẵn: CAS → conflict; non-CAS → retry (doc đã
-        // tồn tại → $inc áp dụng được, không cần upsert nữa).
-        if (e?.code !== 11000) throw e;
-        if (expected == null) {
-          meta = await membershipMeta.findOneAndUpdate(
-            { userId },
-            { $inc: bump },
-            { returnDocument: "after" }
-          );
-        }
-      }
-      if (!meta) {
-        const cur = await membershipMeta.findOne({ userId });
-        return status(409, {
-          conflict: true,
-          revision: cur?.revision ?? 0,
-          epoch: cur?.epoch ?? 0,
-        });
-      }
-      const revision = meta.revision ?? 1;
-      const epoch = meta.epoch ?? 0;
+// Summary dùng chung cho extension badge/alarm — đếm từ đến hạn.
+app.get("/api/review/summary", async (c) => {
+  const userId = (await getUser(c.req.raw))!.userId;
+  const now = Date.now();
+  // Gỡ từ chỉ xóa saved_words — review_stats vẫn còn. Mọi count phải
+  // scope theo từ còn trong sổ, không thì badge đếm cả ghost words.
+  const savedIds = (
+    (
+      await env.DB.prepare("SELECT wordId FROM saved_words WHERE userId = ?")
+        .bind(userId)
+        .all()
+    ).results ?? []
+  ).map((d: any) => d.wordId);
+  if (!savedIds.length)
+    return c.json({ dueCount: 0, nextDue: null, newCount: 0 });
 
-      if (body.saved) {
-        await saved.updateOne(
-          { userId, wordId },
-          { $setOnInsert: { userId, wordId, savedAt: Date.now() } },
-          { upsert: true }
-        );
-      } else {
-        await saved.deleteOne({ userId, wordId });
-      }
-      // Ghi receipt op — duplicate key = ai đó apply trước → đọc lại.
-      try {
-        await wordOps.insertOne({
-          userId,
-          operationId: body.operationId,
-          wordId,
-          saved: body.saved,
-          revision,
-          epoch,
-          at: new Date(),
-        });
-      } catch (e: any) {
-        if (e?.code === 11000) {
-          const p = await wordOps.findOne({ userId, operationId: body.operationId });
-          if (p)
-            return {
-              saved: p.saved,
-              revision: p.revision,
-              epoch: p.epoch,
-              replayed: true,
-              words: await listSaved(userId),
-            };
-        }
-        throw e;
-      }
-      return { saved: body.saved, revision, epoch, words: await listSaved(userId) };
-    },
-    {
-      body: t.Object({
-        wordId: t.String(),
-        saved: t.Boolean(),
-        operationId: t.String(),
-        expectedRevision: t.Optional(t.Number()),
-      }),
-    }
+  const idsJson = JSON.stringify(savedIds);
+  const scope =
+    "FROM review_stats WHERE userId = ? AND wordId IN (SELECT value FROM json_each(?))";
+  const [due, nextDoc, ratedCount] = await Promise.all([
+    env.DB.prepare(`SELECT COUNT(*) n ${scope} AND due <= ?`)
+      .bind(userId, idsJson, now)
+      .first(),
+    env.DB.prepare(`SELECT due ${scope} AND due > ? ORDER BY due ASC LIMIT 1`)
+      .bind(userId, idsJson, now)
+      .first(),
+    env.DB.prepare(
+      `SELECT COUNT(*) n ${scope} AND (firstRatingAt IS NOT NULL OR last_review IS NOT NULL)`
+    )
+      .bind(userId, idsJson)
+      .first(),
+  ]);
+  return c.json({
+    dueCount: (due as any)?.n ?? 0,
+    // Mongo trả Date → JSON ISO string; giữ shape đó thay vì ms int.
+    nextDue: (nextDoc as any)?.due
+      ? new Date((nextDoc as any).due).toISOString()
+      : null,
+    newCount: Math.max(0, savedIds.length - ((ratedCount as any)?.n ?? 0)),
+  });
+});
+
+// Claim thông báo atomic: 1 loại/user/ngày (giờ VN). Quiet hours
+// 22h–7h → không phát. Extension alarm gọi trước khi hiện notification;
+// chỉ hiện khi claim=true (tránh 2 thiết bị cùng bắn).
+app.post("/api/review/notify-claim", async (c) => {
+  const body: any = await c.req.json().catch(() => null);
+  if (typeof body?.kind !== "string" || !body.kind)
+    return c.json({ error: "invalid kind" }, 400);
+  const userId = (await getUser(c.req.raw))!.userId;
+  const vnNow = new Date(Date.now() + 7 * 3_600_000).toISOString();
+  const hourVN = Number(vnNow.slice(11, 13));
+  if (hourVN >= 22 || hourVN < 7) {
+    return c.json({ claim: false, quiet: true });
+  }
+  const dayVN = vnNow.slice(0, 10);
+  const r = await env.DB.prepare(
+    "INSERT OR IGNORE INTO notification_claims(id, userId, kind, dayVN, at) VALUES (?,?,?,?,?)"
   )
-  // Summary dùng chung cho extension badge/alarm — đếm từ đến hạn.
-  .get("/api/review/summary", async ({ request, status }) => {
-    if (!reviewStats || !saved) return status(503, { error: "db not ready" });
-    const userId = getUser(request)!.userId;
-    const now = new Date();
-    // Gỡ từ chỉ xóa saved_words — review_stats vẫn còn. Mọi count phải
-    // scope theo từ còn trong sổ, không thì badge đếm cả ghost words.
-    const savedIds = (
-      await saved.find({ userId }).project({ wordId: 1 }).toArray()
-    ).map((d) => d.wordId);
-    const scope = { userId, wordId: { $in: savedIds } };
-    const [due, nextDocs, ratedCount] = await Promise.all([
-      reviewStats.countDocuments({ ...scope, due: { $lte: now } }),
-      reviewStats
-        .find({ ...scope, due: { $gt: now } }, { projection: { due: 1 } })
-        .sort({ due: 1 })
-        .limit(1)
-        .toArray(),
-      reviewStats.countDocuments({
-        ...scope,
-        $or: [
-          { firstRatingAt: { $exists: true } },
-          { last_review: { $exists: true } },
-        ],
-      }),
-    ]);
-    return {
-      dueCount: due,
-      nextDue: nextDocs[0]?.due ?? null,
-      newCount: Math.max(0, savedIds.length - ratedCount),
-    };
-  })
-  // Claim thông báo atomic: 1 loại/user/ngày (giờ VN). Quiet hours
-  // 22h–7h → không phát. Extension alarm gọi trước khi hiện notification;
-  // chỉ hiện khi claim=true (tránh 2 thiết bị cùng bắn).
-  .post(
-    "/api/review/notify-claim",
-    async ({ request, body, status }) => {
-      if (!notifyClaims) return status(503, { error: "db not ready" });
-      const userId = getUser(request)!.userId;
-      const vnNow = new Date(
-        Date.now() + 7 * 3_600_000
-      ).toISOString();
-      const hourVN = Number(vnNow.slice(11, 13));
-      if (hourVN >= 22 || hourVN < 7) {
-        return { claim: false, quiet: true };
-      }
-      const dayVN = vnNow.slice(0, 10);
-      try {
-        await notifyClaims.insertOne({
-          userId,
-          kind: body.kind,
-          dayVN,
-          at: new Date(),
-        });
-        return { claim: true };
-      } catch (e: any) {
-        if (e?.code === 11000) return { claim: false };
-        throw e;
-      }
-    },
-    { body: t.Object({ kind: t.String() }) }
-  )
-  // One-time bulk import of pre-auth local saved_words. Local copies
-  // predate wordId, so resolve each saved word's key to its dictionary
-  // _id; $setOnInsert keeps existing entries.
-  .post(
-    "/api/words/sync",
-    async ({ request, body, status }) => {
-      if (!saved || !words) return status(503, { error: "db not ready" });
-      const userId = getUser(request)!.userId;
-      const items = body.words.filter(
-        (w: any) => typeof w?.word === "string" && w.word
-      );
-      const keys = items.map((w: any) => w.word.toLowerCase());
-      const docs = keys.length
-        ? await words
-            .find(
-              { $or: [{ search_key: { $in: keys } }, { word: { $in: keys } }] },
-              { projection: { _id: 1, word: 1, search_key: 1 } }
-            )
-            .toArray()
-        : [];
-      const byKey = new Map<string, ObjectId>();
-      for (const d of docs) {
-        for (const k of [d.search_key, d.word])
-          if (typeof k === "string" && !byKey.has(k)) byKey.set(k, d._id);
-      }
-      const ops = items
-        .map((w: any) => ({
-          wordId: byKey.get(w.word.toLowerCase()),
-          savedAt: typeof w.savedAt === "number" ? w.savedAt : Date.now(),
-        }))
-        .filter((w: any) => w.wordId)
-        .map((w: any) => ({
-          updateOne: {
-            filter: { userId, wordId: w.wordId },
-            update: {
-              $setOnInsert: { userId, wordId: w.wordId, savedAt: w.savedAt },
-            },
-            upsert: true,
-          },
-        }));
-      if (ops.length) await saved.bulkWrite(ops);
-      return { words: await listSaved(userId) };
-    },
-    { body: t.Object({ words: t.Array(t.Any(), { maxItems: 500 }) }) }
-  )
-  .listen(Number(process.env.PORT ?? 2999));
+    .bind(newOid(), userId, body.kind, dayVN, Date.now())
+    .run();
+  return c.json({ claim: r.meta.changes > 0 });
+});
+
+// One-time bulk import of pre-auth local saved_words. Local copies
+// predate wordId, so resolve each saved word's key to its dictionary
+// id; OR IGNORE keeps existing entries.
+app.post("/api/words/sync", async (c) => {
+  const body: any = await c.req.json().catch(() => null);
+  if (!Array.isArray(body?.words) || body.words.length > 500)
+    return c.json({ error: "invalid words" }, 400);
+  const userId = (await getUser(c.req.raw))!.userId;
+  const items = body.words.filter(
+    (w: any) => typeof w?.word === "string" && w.word
+  );
+  const keys = items.map((w: any) => w.word.toLowerCase());
+  const keysJson = JSON.stringify(keys);
+  const docs = keys.length
+    ? ((
+        await env.DB.prepare(
+          `SELECT id, word, search_key FROM words
+           WHERE search_key IN (SELECT value FROM json_each(?))
+              OR word IN (SELECT value FROM json_each(?))`
+        )
+          .bind(keysJson, keysJson)
+          .all()
+      ).results ?? [])
+    : [];
+  const byKey = new Map<string, string>();
+  for (const d of docs as any[]) {
+    for (const k of [d.search_key, d.word])
+      if (typeof k === "string" && !byKey.has(k)) byKey.set(k, d.id);
+  }
+  const ops = items
+    .map((w: any) => ({
+      wordId: byKey.get(w.word.toLowerCase()),
+      savedAt: typeof w.savedAt === "number" ? w.savedAt : Date.now(),
+    }))
+    .filter((w: any) => w.wordId);
+  // batch() = atomic hơn cả bulkWrite cũ; chunk 50 cho chắc giới hạn.
+  for (let i = 0; i < ops.length; i += 50) {
+    await env.DB.batch(
+      ops.slice(i, i + 50).map((w: any) =>
+        env.DB.prepare(
+          "INSERT OR IGNORE INTO saved_words(id, userId, wordId, savedAt) VALUES (?,?,?,?)"
+        ).bind(newOid(), userId, w.wordId, w.savedAt)
+      )
+    );
+  }
+  return c.json({ words: await listSaved(userId) });
+});
 
 const listSaved = async (userId: string) => {
-  const docs = await saved!.find({ userId }).sort({ savedAt: -1 }).toArray();
-  if (!docs.length || !words) return [];
-  const wordIds = docs.map((d) => d.wordId);
-  const byId = new Map(
+  const docs =
     (
-      await words!
-        .find({ _id: { $in: wordIds } }, { projection: PROJECTION })
-        .toArray()
-    ).map((d) => [String(d._id), d])
+      await env.DB.prepare(
+        "SELECT wordId FROM saved_words WHERE userId = ? ORDER BY savedAt DESC"
+      )
+        .bind(userId)
+        .all()
+    ).results ?? [];
+  if (!docs.length) return [];
+  const byId = new Map(
+    (await findWords(docs.map((d: any) => d.wordId))).map((d: any) => [
+      String(d._id),
+      d,
+    ])
   );
   return docs
-    .filter((d) => byId.has(String(d.wordId)))
-    .map((d) => shapeWord(byId.get(String(d.wordId))!));
+    .filter((d: any) => byId.has(String(d.wordId)))
+    .map((d: any) => shapeWord(byId.get(String(d.wordId))!));
 };
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+export default app;
