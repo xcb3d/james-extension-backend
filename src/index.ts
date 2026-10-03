@@ -869,4 +869,16 @@ const listSaved = async (userId: string) => {
     .map((d: any) => shapeWord(byId.get(String(d.wordId))!));
 };
 
-export default app;
+export default {
+  fetch: app.fetch,
+  // Cron daily: dọn quiz_attempts hết hạn chưa grade (Mongo TTL không có trên D1).
+  async scheduled(_e: unknown, env: Env, ctx: ExecutionContext) {
+    ctx.waitUntil(
+      env.DB.prepare(
+        "DELETE FROM quiz_attempts WHERE open = 1 AND expiresAt < ?"
+      )
+        .bind(Date.now())
+        .run()
+    );
+  },
+};
