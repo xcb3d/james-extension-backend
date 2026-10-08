@@ -1,5 +1,12 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import {
+  adjustForWord,
+  getSummaryRow,
+  invalidateSummary,
+  nextDueAt,
+  ratedDueCount,
+} from "./summary";
 
 // Worker thuần: bindings/secrets đọc từ env (stash ở guard middleware —
 // helpers không nhận c). Không còn Mongo, S3Client, node:crypto.
@@ -80,10 +87,54 @@ const getUser = async (req: Request) => {
   return token ? verifyToken(token) : null;
 };
 
+// IP cho rate limit: cf-connecting-ip là header Cloudflare set (client
+// không ghi đè được). XFF thì CF append IP thật vào CUỐI chain — phần tử
+// đầu là do client tự khai → dùng phần tử cuối, không bao giờ dùng [0].
+const ipOf = (req: Request): string =>
+  req.headers.get("cf-connecting-ip") ??
+  req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ??
+  "unknown";
+
 // LIKE escape — chỉ \\, %, _ cần escape (Mongo regex escape nhiều hơn).
 const likeEsc = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 const docOf = (row: any) => (row ? JSON.parse(row.data) : null);
+
+// Từ điển là dữ liệu chung gần như bất biến → cache JSON response ở edge
+// (Cache API per-colo): mọi lookup lặp của tất cả user không chạm D1 nữa.
+// Sửa/xoá từ trên site lan tới chậm tối đa DICT_TTL_S; miss chỉ cache ngắn
+// vì /api/define-ai có thể tạo từ ngay sau đó.
+const DICT_TTL_S = 6 * 3600;
+const DICT_MISS_TTL_S = 300;
+const DICT_ORIGIN = "https://www.extension.toeicwithjames.com";
+
+async function dictCached<T>(
+  key: string,
+  load: () => Promise<T | null>
+): Promise<T | null> {
+  const cache =
+    typeof caches !== "undefined" ? (caches as any).default : undefined;
+  const req = new Request(`${DICT_ORIGIN}/__dict/${key}`);
+  try {
+    const hit = await cache?.match(req);
+    if (hit) return (await hit.json()) as T | null;
+  } catch {
+    // cache lỗi → đọc D1 như cũ
+  }
+  const v = await load();
+  try {
+    await cache?.put(
+      req,
+      new Response(JSON.stringify(v), {
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": `public, max-age=${v == null ? DICT_MISS_TTL_S : DICT_TTL_S}`,
+        },
+      })
+    );
+  } catch {}
+  return v;
+}
 
 // IN-list qua json_each — D1 cap ~100 bound params/statement nên không
 // bung (?,?,...) được cho danh sách dài.
@@ -424,11 +475,14 @@ app.use(
 app.use("/api/*", async (c, next) => {
   env = c.env;
   if (c.req.path === "/api/health") return next();
-  const ip =
-    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!allowed(ip)) return c.json({ error: "too many requests" }, 429);
+  if (!allowed(ipOf(c.req.raw))) return c.json({ error: "too many requests" }, 429);
   if (!(await getUser(c.req.raw))) return c.json({ error: "unauthorized" }, 401);
   return next();
+});
+
+app.get("/api/auth/check", async (c) => {
+  const user = await getUser(c.req.raw);
+  return c.json({ ok: !!user, userId: user?.userId ?? null });
 });
 
 app.get("/api/health", (c) => c.json({ ok: true }));
@@ -441,26 +495,32 @@ app.get("/api/define", async (c) => {
     .replace(/['’]$/, "");
   if (!word) return c.json({ error: "missing word" }, 400);
 
-  const lookup = (w: string) =>
-    env.DB.prepare(
-      "SELECT data FROM words WHERE search_key = ? OR word = ? LIMIT 1"
-    )
-      .bind(w, w)
-      .first();
+  const shaped = await dictCached(
+    `define/${encodeURIComponent(word)}`,
+    async () => {
+      const lookup = (w: string) =>
+        env.DB.prepare(
+          "SELECT data FROM words WHERE search_key = ? OR word = ? LIMIT 1"
+        )
+          .bind(w, w)
+          .first();
 
-  const candidates = [word];
-  if (word.endsWith("s") && word.length > 3) candidates.push(word.slice(0, -1));
-  if (word.endsWith("ies")) candidates.push(word.slice(0, -3) + "y");
-  if (word.includes("-")) candidates.push(word.split("-").pop()!);
+      const candidates = [word];
+      if (word.endsWith("s") && word.length > 3)
+        candidates.push(word.slice(0, -1));
+      if (word.endsWith("ies")) candidates.push(word.slice(0, -3) + "y");
+      if (word.includes("-")) candidates.push(word.split("-").pop()!);
 
-  let doc = null;
-  for (const cand of candidates) {
-    doc = docOf(await lookup(cand));
-    if (doc) break;
-  }
-  if (!doc) return c.json({ error: "not found" }, 404);
+      for (const cand of candidates) {
+        const doc = docOf(await lookup(cand));
+        if (doc) return shapeWord(doc);
+      }
+      return null;
+    }
+  );
+  if (!shaped) return c.json({ error: "not found" }, 404);
 
-  return c.json(shapeWord(doc));
+  return c.json(shaped);
 });
 
 app.post("/api/define-ai", async (c) => {
@@ -475,9 +535,8 @@ app.post("/api/define-ai", async (c) => {
   if (!/^[a-z][a-z'’\-]{1,30}$/i.test(word))
     return c.json({ error: "invalid word" }, 400);
 
-  const ip =
-    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!aiAllowed(ip)) return c.json({ error: "too many requests" }, 429);
+  if (!aiAllowed(ipOf(c.req.raw)))
+    return c.json({ error: "too many requests" }, 429);
   if (!aiDailyAllowed((await getUser(c.req.raw))!.userId))
     return c.json({ error: "daily ai quota reached" }, 429);
 
@@ -515,22 +574,28 @@ app.get("/api/suggest", async (c) => {
   if (!q) return c.json({ suggestions: [] });
   // COLLATE NOCASE để LIKE 'prefix%' đi qua words_word_nocase index —
   // không có nó thì mỗi keystroke full-scan 18k rows.
-  const { results } = await env.DB.prepare(
-    "SELECT data FROM words WHERE word COLLATE NOCASE LIKE ? ESCAPE '\\' LIMIT 8"
-  )
-    .bind(`${likeEsc(q)}%`)
-    .all();
-
-  return c.json({
-    suggestions: (results ?? []).map((r: any) => {
-      const d = JSON.parse(r.data);
-      return {
-        word: d.word,
-        phonetic: d.phonetic,
-        meaning: d.senses?.[0] || "",
-      };
-    }),
-  });
+  const suggestions = await dictCached(
+    `suggest/${encodeURIComponent(q)}`,
+    async () => {
+      const { results } = await env.DB.prepare(
+        `SELECT json_extract(data,'$.word') word,
+                json_extract(data,'$.phonetic') phonetic,
+                json_extract(data,'$.senses[0]') meaning
+         FROM words WHERE word COLLATE NOCASE LIKE ? ESCAPE '\\' LIMIT 8`
+      )
+        .bind(`${likeEsc(q)}%`)
+        .all();
+      // Empty → null để rơi vào TTL ngắn: từ mới thêm qua define-ai phải
+      // lên gợi ý sớm, không chờ hết DICT_TTL_S.
+      if (!results?.length) return null;
+      return results.map((r: any) => ({
+        word: r.word,
+        phonetic: r.phonetic ?? undefined,
+        meaning: r.meaning ?? "",
+      }));
+    }
+  );
+  return c.json({ suggestions: suggestions ?? [] });
 });
 
 app.get("/api/random", async (c) => {
@@ -548,14 +613,27 @@ app.get("/api/random", async (c) => {
   return c.json(shapeWord(doc));
 });
 
+app.get("/api/words/check", async (c) => {
+  const user = await getUser(c.req.raw);
+  if (!user) return c.json({ error: "unauthorized" }, 401);
+  const wordId = c.req.query("wordId");
+  if (!wordId || !isOid(wordId)) return c.json({ ok: true, saved: false });
+  const row = await env.DB.prepare(
+    "SELECT 1 FROM saved_words WHERE userId = ? AND wordId = ?"
+  )
+    .bind(user.userId, wordId)
+    .first();
+  return c.json({ ok: true, saved: !!row });
+});
+
 // --- Saved words: only {userId, wordId, savedAt} — word data is
 // resolved fresh from the dictionary so site edits propagate.
-// Không param → full list (isWordSaved, badge). Có `limit` → phân trang
-// cursor `${savedAt}_${id}` của item cuối trang trước — ổn định khi có
-// item mới chen vào đầu danh sách.
+// Mặc định phân trang limit=20 (tối đa 50) cursor `${savedAt}_${id}`.
 app.get("/api/words", async (c) => {
   const userId = (await getUser(c.req.raw))!.userId;
-  if (!c.req.query("limit")) return c.json({ words: await listSaved(userId) });
+  if (!c.req.query("limit") && c.req.query("all") === "true") {
+    return c.json({ words: await listSaved(userId, 50) });
+  }
   const q = (c.req.query("q") ?? "").trim().toLowerCase();
   const limit = Math.min(Number(c.req.query("limit")) || 20, 50);
 
@@ -578,10 +656,17 @@ app.get("/api/words", async (c) => {
     }
   }
 
+  // Nếu không có tìm kiếm q, lấy total từ review_summary (1 row read) thay vì scan saved_words (1,000+ rows).
+  const countPromise = q
+    ? env.DB.prepare(`SELECT COUNT(*) n FROM saved_words ${where}`)
+        .bind(...binds)
+        .first()
+    : env.DB.prepare("SELECT total as n FROM review_summary WHERE userId = ?")
+        .bind(userId)
+        .first();
+
   const [totalRow, pageRes] = await Promise.all([
-    env.DB.prepare(`SELECT COUNT(*) n FROM saved_words ${where}`)
-      .bind(...binds)
-      .first(),
+    countPromise,
     env.DB.prepare(
       `SELECT id, wordId, savedAt FROM saved_words ${where} ORDER BY savedAt DESC, id DESC LIMIT ?`
     )
@@ -602,7 +687,11 @@ app.get("/api/words", async (c) => {
   const last = page[page.length - 1];
   const nextCursor =
     docs.length > limit && last ? `${last.savedAt}_${last.id}` : null;
-  return c.json({ words: list, nextCursor, total: (totalRow as any)?.n ?? 0 });
+  const total =
+    typeof (totalRow as any)?.n === "number"
+      ? Number((totalRow as any).n)
+      : 0;
+  return c.json({ words: list, nextCursor, total });
 });
 
 // /api/words/toggle đã bỏ — không idempotent (retry lật trạng thái).
@@ -632,7 +721,6 @@ app.post("/api/words/set", async (c) => {
       revision: (prev as any).revision,
       epoch: (prev as any).epoch,
       replayed: true,
-      words: await listSaved(userId),
     });
   }
   if (
@@ -686,17 +774,20 @@ app.post("/api/words/set", async (c) => {
   const epoch = (meta as any).epoch as number;
 
   if (body.saved) {
-    await env.DB.prepare(
+    const saveRes = await env.DB.prepare(
       "INSERT OR IGNORE INTO saved_words(id, userId, wordId, savedAt) VALUES (?,?,?,?)"
     )
       .bind(newOid(), userId, wordId, Date.now())
       .run();
+    // review_summary: chỉ cộng khi thực sự thêm mới (OR IGNORE trùng = 0).
+    if (saveRes.meta.changes) await adjustForWord(env.DB, userId, wordId, 1);
   } else {
-    await env.DB.prepare(
+    const del = await env.DB.prepare(
       "DELETE FROM saved_words WHERE userId = ? AND wordId = ?"
     )
       .bind(userId, wordId)
       .run();
+    if (del.meta.changes) await adjustForWord(env.DB, userId, wordId, -1);
   }
   // Ghi receipt op — conflict = ai đó apply trước → đọc lại.
   const ins = await env.DB.prepare(
@@ -725,56 +816,35 @@ app.post("/api/words/set", async (c) => {
         revision: (p as any).revision,
         epoch: (p as any).epoch,
         replayed: true,
-        words: await listSaved(userId),
       });
   }
   return c.json({
     saved: body.saved,
     revision,
     epoch,
-    words: await listSaved(userId),
   });
 });
 
 // Summary dùng chung cho extension badge/alarm — đếm từ đến hạn.
+// Đọc review_summary (1 row) + index rs_user_grp_due thay vì tải toàn bộ
+// saved ids rồi json_each trên review_stats (3 query × O(số từ) mỗi lần gọi).
+// Gỡ từ chỉ xóa saved_words — review_stats vẫn còn, nên count đều scope
+// theo từ còn trong sổ (SAVED_SQL), không thì badge đếm cả ghost words.
 app.get("/api/review/summary", async (c) => {
   const userId = (await getUser(c.req.raw))!.userId;
   const now = Date.now();
-  // Gỡ từ chỉ xóa saved_words — review_stats vẫn còn. Mọi count phải
-  // scope theo từ còn trong sổ, không thì badge đếm cả ghost words.
-  const savedIds = (
-    (
-      await env.DB.prepare("SELECT wordId FROM saved_words WHERE userId = ?")
-        .bind(userId)
-        .all()
-    ).results ?? []
-  ).map((d: any) => d.wordId);
-  if (!savedIds.length)
-    return c.json({ dueCount: 0, nextDue: null, newCount: 0 });
+  const sum = await getSummaryRow(env.DB, userId, now);
+  if (!sum.total) return c.json({ dueCount: 0, nextDue: null, newCount: 0 });
 
-  const idsJson = JSON.stringify(savedIds);
-  const scope =
-    "FROM review_stats WHERE userId = ? AND wordId IN (SELECT value FROM json_each(?))";
-  const [due, nextDoc, ratedCount] = await Promise.all([
-    env.DB.prepare(`SELECT COUNT(*) n ${scope} AND due <= ?`)
-      .bind(userId, idsJson, now)
-      .first(),
-    env.DB.prepare(`SELECT due ${scope} AND due > ? ORDER BY due ASC LIMIT 1`)
-      .bind(userId, idsJson, now)
-      .first(),
-    env.DB.prepare(
-      `SELECT COUNT(*) n ${scope} AND (firstRatingAt IS NOT NULL OR last_review IS NOT NULL)`
-    )
-      .bind(userId, idsJson)
-      .first(),
+  const [due, next] = await Promise.all([
+    ratedDueCount(env.DB, userId, sum, now),
+    nextDueAt(env.DB, userId, now),
   ]);
   return c.json({
-    dueCount: (due as any)?.n ?? 0,
+    dueCount: due,
     // Mongo trả Date → JSON ISO string; giữ shape đó thay vì ms int.
-    nextDue: (nextDoc as any)?.due
-      ? new Date((nextDoc as any).due).toISOString()
-      : null,
-    newCount: Math.max(0, savedIds.length - ((ratedCount as any)?.n ?? 0)),
+    nextDue: next ? new Date(next).toISOString() : null,
+    newCount: sum.unrated,
   });
 });
 
@@ -836,25 +906,30 @@ app.post("/api/words/sync", async (c) => {
     }))
     .filter((w: any) => w.wordId);
   // batch() = atomic hơn cả bulkWrite cũ; chunk 50 cho chắc giới hạn.
+  let added = 0;
   for (let i = 0; i < ops.length; i += 50) {
-    await env.DB.batch(
+    const rs = await env.DB.batch(
       ops.slice(i, i + 50).map((w: any) =>
         env.DB.prepare(
           "INSERT OR IGNORE INTO saved_words(id, userId, wordId, savedAt) VALUES (?,?,?,?)"
         ).bind(newOid(), userId, w.wordId, w.savedAt)
       )
     );
+    for (const r of rs) added += r.meta.changes ?? 0;
   }
-  return c.json({ words: await listSaved(userId) });
+  // Nhiều từ thêm cùng lúc → xoá review_summary để rebuild lười (rẻ hơn
+  // tính delta từng từ).
+  if (added) await invalidateSummary(env.DB, userId);
+  return c.json({ ok: true, added });
 });
 
-const listSaved = async (userId: string) => {
+const listSaved = async (userId: string, limit = 50) => {
   const docs =
     (
       await env.DB.prepare(
-        "SELECT wordId FROM saved_words WHERE userId = ? ORDER BY savedAt DESC"
+        "SELECT wordId FROM saved_words WHERE userId = ? ORDER BY savedAt DESC LIMIT ?"
       )
-        .bind(userId)
+        .bind(userId, limit)
         .all()
     ).results ?? [];
   if (!docs.length) return [];
@@ -871,11 +946,11 @@ const listSaved = async (userId: string) => {
 
 export default {
   fetch: app.fetch,
-  // Cron daily: dọn quiz_attempts hết hạn chưa grade (Mongo TTL không có trên D1).
+  // Cron daily: dọn quiz_attempts hết hạn chưa grade (ăn thẳng index qa_expiry).
   async scheduled(_e: unknown, env: Env, ctx: ExecutionContext) {
     ctx.waitUntil(
       env.DB.prepare(
-        "DELETE FROM quiz_attempts WHERE open = 1 AND expiresAt < ?"
+        "DELETE FROM quiz_attempts WHERE open = 1 AND gradedAt IS NULL AND expiresAt < ?"
       )
         .bind(Date.now())
         .run()

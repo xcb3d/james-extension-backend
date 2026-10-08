@@ -1,0 +1,1729 @@
+[
+ {
+  "_id": "6ab761284cf38ae0330477e7",
+  "search_key": "api",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/api.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T06:07:36.545Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Our booking system uses an api to check room availability.",
+    "vi": "Hệ thống đặt phòng của chúng tôi dùng một API để kiểm tra tình trạng phòng."
+   },
+   {
+    "en": "The vendor provided an api for transferring sales data.",
+    "vi": "Nhà cung cấp đã cung cấp một API để chuyển dữ liệu bán hàng."
+   },
+   {
+    "en": "Please ask the IT team to update the api before the launch.",
+    "vi": "Vui lòng yêu cầu nhóm CNTT cập nhật API trước khi ra mắt."
+   }
+  ],
+  "forms": [
+   "APIs"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/api.webp",
+  "level": "B2",
+  "phonetic": "/ˌeɪ piː ˈaɪ/",
+  "phonetic_uk": "/ˌeɪ piː ˈaɪ/",
+  "phonetic_us": "/ˌeɪ piː ˈaɪ/",
+  "phrases": [
+   {
+    "phrase": "API integration",
+    "meaning": "Việc tích hợp các phần mềm thông qua API."
+   },
+   {
+    "phrase": "API key",
+    "meaning": "Mã dùng để xác thực quyền truy cập API."
+   },
+   {
+    "phrase": "connect to an API",
+    "meaning": "Kết nối với một API."
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Our booking system uses an api to check room availability.",
+   "vi": "Hệ thống đặt phòng của chúng tôi dùng một API để kiểm tra tình trạng phòng."
+  },
+  "related": [],
+  "senses": [
+   "Giao diện lập trình ứng dụng, giúp các phần mềm trao đổi dữ liệu hoặc chức năng với nhau.",
+   "Bộ quy tắc và công cụ cho phép một ứng dụng truy cập dịch vụ hoặc dữ liệu của ứng dụng khác."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:09:55.565Z",
+  "word": "api",
+  "word_family": [
+   {
+    "word": "API-based",
+    "pos": "adj",
+    "meaning": "Dựa trên hoặc được triển khai thông qua API."
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/api.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/api.mp3"
+ },
+ {
+  "_id": "6ab763d44cf38ae03304792c",
+  "search_key": "backend",
+  "antonyms": [
+   "frontend"
+  ],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/backend.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T06:19:00.093Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The backend processes customer orders and updates inventory.",
+    "vi": "Hệ thống phía máy chủ xử lý đơn hàng của khách và cập nhật hàng tồn kho."
+   },
+   {
+    "en": "Our developers upgraded the backend to improve payment processing.",
+    "vi": "Các nhà phát triển của chúng tôi đã nâng cấp hệ thống phía máy chủ để cải thiện việc xử lý thanh toán."
+   },
+   {
+    "en": "The backend team handles data storage and system maintenance.",
+    "vi": "Đội ngũ vận hành hậu trường phụ trách lưu trữ dữ liệu và bảo trì hệ thống."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/backend.webp",
+  "level": "B2",
+  "phonetic": "/ˈbæk.end/",
+  "phonetic_uk": "/ˈbæk.end/",
+  "phonetic_us": "/ˈbæk.end/",
+  "phrases": [
+   {
+    "phrase": "backend system",
+    "meaning": "hệ thống phần mềm xử lý các hoạt động phía máy chủ"
+   },
+   {
+    "phrase": "backend operations",
+    "meaning": "các hoạt động vận hành hậu trường"
+   }
+  ],
+  "pos": [
+   "n",
+   "adj"
+  ],
+  "primary_example": {
+   "en": "The backend processes customer orders and updates inventory.",
+   "vi": "Hệ thống phía máy chủ xử lý đơn hàng của khách và cập nhật hàng tồn kho."
+  },
+  "related": [],
+  "senses": [
+   "Phần hệ thống phần mềm chạy phía máy chủ, xử lý dữ liệu và logic mà người dùng không trực tiếp nhìn thấy.",
+   "Khâu vận hành hậu trường của một doanh nghiệp, chẳng hạn xử lý đơn hàng, thanh toán hoặc lưu trữ dữ liệu."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:16:59.430Z",
+  "word": "backend",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/backend.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/backend.mp3"
+ },
+ {
+  "_id": "6ab765d44cf38ae033047a24",
+  "search_key": "bios",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/bios.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T06:27:32.500Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please send us your bios before the conference program goes to print.",
+    "vi": "Vui lòng gửi tiểu sử ngắn của bạn trước khi chương trình hội nghị được in."
+   },
+   {
+    "en": "The company website features bios of its senior executives.",
+    "vi": "Trang web công ty đăng tiểu sử ngắn của các lãnh đạo cấp cao."
+   },
+   {
+    "en": "The technician updated the computers' BIOS before installing the new operating system.",
+    "vi": "Kỹ thuật viên đã cập nhật BIOS của các máy tính trước khi cài hệ điều hành mới."
+   }
+  ],
+  "forms": [
+   "bio"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/bios.webp",
+  "level": "B1",
+  "phonetic": "/ˈbaɪ.oʊz/",
+  "phonetic_uk": "/ˈbaɪ.əʊz/",
+  "phonetic_us": "/ˈbaɪ.oʊz/",
+  "phrases": [
+   {
+    "phrase": "speaker bios",
+    "meaning": "tiểu sử ngắn của các diễn giả"
+   },
+   {
+    "phrase": "employee bios",
+    "meaning": "tiểu sử ngắn của nhân viên"
+   },
+   {
+    "phrase": "computer BIOS",
+    "meaning": "chương trình cơ sở khởi động máy tính"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please send us your bios before the conference program goes to print.",
+   "vi": "Vui lòng gửi tiểu sử ngắn của bạn trước khi chương trình hội nghị được in."
+  },
+  "related": [
+   "biographies",
+   "profiles"
+  ],
+  "senses": [
+   "Các bài tiểu sử ngắn, thường dùng để giới thiệu nhân viên, diễn giả hoặc ứng viên.",
+   "Thông tin tóm tắt về lý lịch và kinh nghiệm của một người.",
+   "BIOS: chương trình cơ sở khởi động và kiểm tra phần cứng của máy tính."
+  ],
+  "synonyms": [
+   "biographies",
+   "profiles"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:22:09.209Z",
+  "word": "bios",
+  "word_family": [
+   {
+    "word": "bio",
+    "pos": "n",
+    "meaning": "tiểu sử ngắn"
+   },
+   {
+    "word": "biography",
+    "pos": "n",
+    "meaning": "tiểu sử"
+   },
+   {
+    "word": "biographical",
+    "pos": "adj",
+    "meaning": "thuộc về tiểu sử"
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/bios.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/bios.mp3"
+ },
+ {
+  "_id": "6ab76c964cf38ae033047d83",
+  "search_key": "cms",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/cms.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T06:56:22.265Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Our marketing team uses a CMS to update the company website.",
+    "vi": "Nhóm tiếp thị của chúng tôi dùng một hệ thống CMS để cập nhật trang web công ty."
+   },
+   {
+    "en": "The finance department introduced a CMS to monitor daily cash flows.",
+    "vi": "Phòng tài chính đã triển khai một hệ thống CMS để theo dõi dòng tiền hằng ngày."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/cms.webp",
+  "level": "B2",
+  "phonetic": "/ˌsiː em ˈes/",
+  "phonetic_uk": "/ˌsiː em ˈes/",
+  "phonetic_us": "/ˌsiː em ˈes/",
+  "phrases": [
+   {
+    "phrase": "content management system",
+    "meaning": "hệ thống quản lý nội dung số"
+   },
+   {
+    "phrase": "cash management system",
+    "meaning": "hệ thống quản lý tiền mặt"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Our marketing team uses a CMS to update the company website.",
+   "vi": "Nhóm tiếp thị của chúng tôi dùng một hệ thống CMS để cập nhật trang web công ty."
+  },
+  "related": [],
+  "senses": [
+   "hệ thống quản lý nội dung số, thường dùng để tạo và cập nhật nội dung trên website",
+   "hệ thống quản lý tiền mặt, giúp doanh nghiệp theo dõi và kiểm soát dòng tiền"
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:59:15.985Z",
+  "word": "cms",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/cms.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/cms.mp3"
+ },
+ {
+  "_id": "6ab76de84cf38ae033047e17",
+  "search_key": "compiler",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/compiler.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T07:02:00.538Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The compiler flagged an error when the development team tested the new software.",
+    "vi": "Trình biên dịch báo lỗi khi nhóm phát triển kiểm thử phần mềm mới."
+   },
+   {
+    "en": "The report compiler checked the figures before distributing the quarterly summary.",
+    "vi": "Người biên soạn báo cáo đã kiểm tra các số liệu trước khi phát hành bản tổng kết quý."
+   },
+   {
+    "en": "Our compiler converts the source code into a program that can run on company computers.",
+    "vi": "Trình biên dịch của chúng tôi chuyển mã nguồn thành một chương trình có thể chạy trên máy tính của công ty."
+   }
+  ],
+  "forms": [
+   "compilers"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/compiler.webp",
+  "level": "B2",
+  "phonetic": "/kəmˈpaɪlər/",
+  "phonetic_uk": "/kəmˈpaɪlə/",
+  "phonetic_us": "/kəmˈpaɪlər/",
+  "phrases": [
+   {
+    "phrase": "compiler error",
+    "meaning": "lỗi do trình biên dịch phát hiện hoặc tạo ra"
+   },
+   {
+    "phrase": "compiler output",
+    "meaning": "kết quả do trình biên dịch tạo ra"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The compiler flagged an error when the development team tested the new software.",
+   "vi": "Trình biên dịch báo lỗi khi nhóm phát triển kiểm thử phần mềm mới."
+  },
+  "related": [],
+  "senses": [
+   "Chương trình chuyển mã nguồn thành dạng máy tính có thể thực thi.",
+   "Người tập hợp và sắp xếp thông tin, tài liệu để tạo thành báo cáo, danh mục hoặc ấn phẩm."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:40:13.161Z",
+  "word": "compiler",
+  "word_family": [
+   {
+    "word": "compile",
+    "pos": "v",
+    "meaning": "biên dịch; tập hợp và sắp xếp thông tin"
+   },
+   {
+    "word": "compilation",
+    "pos": "n",
+    "meaning": "sự biên dịch; tuyển tập tài liệu hoặc thông tin"
+   },
+   {
+    "word": "compiled",
+    "pos": "adj",
+    "meaning": "đã được biên dịch hoặc tập hợp"
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/compiler.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/compiler.mp3"
+ },
+ {
+  "_id": "6ab770c74cf38ae033047f50",
+  "search_key": "cpu",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/cpu.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T07:14:15.470Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The new accounting software requires a faster CPU.",
+    "vi": "Phần mềm kế toán mới cần một bộ xử lý nhanh hơn."
+   },
+   {
+    "en": "IT checked the CPU usage after employees reported that their computers were slow.",
+    "vi": "Bộ phận IT đã kiểm tra mức sử dụng bộ xử lý sau khi nhân viên báo máy tính chạy chậm."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/cpu.webp",
+  "level": "B1",
+  "phonetic": "/ˌsiː piː ˈjuː/",
+  "phonetic_uk": "/ˌsiː piː ˈjuː/",
+  "phonetic_us": "/ˌsiː piː ˈjuː/",
+  "phrases": [
+   {
+    "phrase": "CPU usage",
+    "meaning": "mức sử dụng bộ xử lý trung tâm"
+   },
+   {
+    "phrase": "CPU upgrade",
+    "meaning": "việc nâng cấp bộ xử lý trung tâm"
+   },
+   {
+    "phrase": "CPU-intensive",
+    "meaning": "đòi hỏi nhiều tài nguyên xử lý"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The new accounting software requires a faster CPU.",
+   "vi": "Phần mềm kế toán mới cần một bộ xử lý nhanh hơn."
+  },
+  "related": [
+   "processor",
+   "microprocessor"
+  ],
+  "senses": [
+   "bộ xử lý trung tâm của máy tính, thực hiện các lệnh và xử lý dữ liệu",
+   "bộ phận xử lý chính quyết định phần lớn tốc độ hoạt động của máy tính"
+  ],
+  "synonyms": [
+   "processor",
+   "microprocessor"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:45:50.255Z",
+  "word": "cpu",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/cpu.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/cpu.mp3"
+ },
+ {
+  "_id": "6ab772984cf38ae033048028",
+  "search_key": "debugger",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/debugger.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T07:22:00.211Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The development team used a debugger to identify the cause of the software failure.",
+    "vi": "Nhóm phát triển đã dùng công cụ gỡ lỗi để xác định nguyên nhân sự cố phần mềm."
+   },
+   {
+    "en": "Our debugger can help locate errors before the new system is released.",
+    "vi": "Công cụ gỡ lỗi của chúng tôi có thể giúp tìm ra lỗi trước khi hệ thống mới được phát hành."
+   },
+   {
+    "en": "The debugger showed that the payment function was not processing transactions correctly.",
+    "vi": "Công cụ gỡ lỗi cho thấy chức năng thanh toán không xử lý giao dịch chính xác."
+   }
+  ],
+  "forms": [
+   "debuggers"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/debugger.webp",
+  "level": "B2",
+  "phonetic": "/ˌdiːˈbʌɡər/",
+  "phonetic_uk": "/ˌdiːˈbʌɡə/",
+  "phonetic_us": "/ˌdiːˈbʌɡər/",
+  "phrases": [
+   {
+    "phrase": "use a debugger",
+    "meaning": "dùng công cụ gỡ lỗi"
+   },
+   {
+    "phrase": "built-in debugger",
+    "meaning": "công cụ gỡ lỗi được tích hợp sẵn"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The development team used a debugger to identify the cause of the software failure.",
+   "vi": "Nhóm phát triển đã dùng công cụ gỡ lỗi để xác định nguyên nhân sự cố phần mềm."
+  },
+  "related": [],
+  "senses": [
+   "Công cụ phần mềm dùng để tìm và sửa lỗi trong chương trình máy tính.",
+   "Người chuyên tìm và sửa lỗi trong chương trình máy tính."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T15:49:26.627Z",
+  "word": "debugger",
+  "word_family": [
+   {
+    "word": "debug",
+    "pos": "v",
+    "meaning": "tìm và sửa lỗi trong chương trình máy tính"
+   },
+   {
+    "word": "debugging",
+    "pos": "n",
+    "meaning": "việc tìm và sửa lỗi trong chương trình máy tính"
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/debugger.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/debugger.mp3"
+ },
+ {
+  "_id": "6ab788a34cf38ae033048367",
+  "search_key": "ethernet",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/ethernet.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T08:56:03.987Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please connect the printer to the office network via ethernet.",
+    "vi": "Vui lòng kết nối máy in với mạng văn phòng bằng ethernet."
+   },
+   {
+    "en": "The meeting room has an ethernet connection for presentations.",
+    "vi": "Phòng họp có kết nối ethernet để phục vụ các buổi thuyết trình."
+   },
+   {
+    "en": "Our IT team replaced the damaged ethernet cable.",
+    "vi": "Đội ngũ CNTT của chúng tôi đã thay sợi cáp ethernet bị hỏng."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/ethernet.webp",
+  "level": "B2",
+  "phonetic": "/ˈiːθərˌnɛt/",
+  "phonetic_uk": "/ˈiːθənet/",
+  "phonetic_us": "/ˈiːθərˌnɛt/",
+  "phrases": [
+   {
+    "phrase": "Ethernet cable",
+    "meaning": "cáp Ethernet dùng để kết nối thiết bị với mạng có dây"
+   },
+   {
+    "phrase": "Ethernet connection",
+    "meaning": "kết nối mạng có dây theo chuẩn Ethernet"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please connect the printer to the office network via ethernet.",
+   "vi": "Vui lòng kết nối máy in với mạng văn phòng bằng ethernet."
+  },
+  "related": [],
+  "senses": [
+   "công nghệ mạng có dây dùng để kết nối máy tính và các thiết bị trong mạng cục bộ",
+   "kết nối mạng có dây sử dụng công nghệ Ethernet"
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:03:26.278Z",
+  "word": "ethernet",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/ethernet.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/ethernet.mp3"
+ },
+ {
+  "_id": "6ab78bd54cf38ae0330484ce",
+  "search_key": "firmware",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/firmware.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:09:41.048Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The technician updated the printer's firmware to fix a connection issue.",
+    "vi": "Kỹ thuật viên đã cập nhật firmware của máy in để khắc phục sự cố kết nối."
+   },
+   {
+    "en": "Please check whether the router is running the latest firmware.",
+    "vi": "Vui lòng kiểm tra xem bộ định tuyến có đang chạy firmware mới nhất không."
+   },
+   {
+    "en": "The manufacturer released new firmware for the company's handheld scanners.",
+    "vi": "Nhà sản xuất đã phát hành firmware mới cho các máy quét cầm tay của công ty."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/firmware.webp",
+  "level": "B2",
+  "phonetic": "/ˈfɝːmwer/",
+  "phonetic_uk": "/ˈfɜːmweə(r)/",
+  "phonetic_us": "/ˈfɝːmwer/",
+  "phrases": [
+   {
+    "phrase": "firmware update",
+    "meaning": "bản cập nhật phần mềm điều khiển của thiết bị"
+   },
+   {
+    "phrase": "firmware upgrade",
+    "meaning": "việc nâng cấp phần mềm điều khiển của thiết bị"
+   },
+   {
+    "phrase": "install firmware",
+    "meaning": "cài đặt phần mềm điều khiển cho thiết bị"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The technician updated the printer's firmware to fix a connection issue.",
+   "vi": "Kỹ thuật viên đã cập nhật firmware của máy in để khắc phục sự cố kết nối."
+  },
+  "related": [],
+  "senses": [
+   "Phần mềm cấp thấp được lưu trong bộ nhớ của thiết bị để điều khiển hoạt động của phần cứng.",
+   "Phiên bản phần mềm tích hợp trong thiết bị điện tử, có thể được cập nhật để sửa lỗi hoặc bổ sung chức năng."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:09:42.729Z",
+  "word": "firmware",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/firmware.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/firmware.mp3"
+ },
+ {
+  "_id": "6ab78dd24cf38ae0330485ad",
+  "search_key": "ftp",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/ftp.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:18:10.806Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please ftp the updated price list to the shared server.",
+    "vi": "Vui lòng truyền bảng giá đã cập nhật lên máy chủ dùng chung bằng FTP."
+   },
+   {
+    "en": "The supplier will ftp the product images to our marketing team.",
+    "vi": "Nhà cung cấp sẽ gửi hình ảnh sản phẩm cho nhóm tiếp thị của chúng tôi bằng FTP."
+   },
+   {
+    "en": "Our IT department uses ftp to transfer large files to clients.",
+    "vi": "Bộ phận CNTT của chúng tôi dùng FTP để chuyển các tệp lớn cho khách hàng."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/ftp.webp",
+  "level": "B2",
+  "phonetic": "/ˌef tiː ˈpiː/",
+  "phonetic_uk": "/ˌef tiː ˈpiː/",
+  "phonetic_us": "/ˌef tiː ˈpiː/",
+  "phrases": [
+   {
+    "phrase": "FTP server",
+    "meaning": "máy chủ dùng để lưu trữ hoặc truyền tệp qua FTP"
+   },
+   {
+    "phrase": "FTP site",
+    "meaning": "trang hoặc địa chỉ máy chủ cho phép truy cập tệp qua FTP"
+   }
+  ],
+  "pos": [
+   "n",
+   "v"
+  ],
+  "primary_example": {
+   "en": "Please ftp the updated price list to the shared server.",
+   "vi": "Vui lòng truyền bảng giá đã cập nhật lên máy chủ dùng chung bằng FTP."
+  },
+  "related": [],
+  "senses": [
+   "Giao thức truyền tệp giữa các máy tính qua mạng.",
+   "Truyền hoặc gửi tệp bằng giao thức FTP."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:13:26.706Z",
+  "word": "ftp",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/ftp.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/ftp.mp3"
+ },
+ {
+  "_id": "6ab790984cf38ae033048707",
+  "search_key": "gui",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/gui.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:30:00.313Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The new accounting software has a simple GUI that requires little training.",
+    "vi": "Phần mềm kế toán mới có giao diện đồ họa đơn giản, không cần đào tạo nhiều."
+   },
+   {
+    "en": "Our IT team updated the GUI to make the reporting tools easier to use.",
+    "vi": "Đội ngũ CNTT đã cập nhật giao diện đồ họa để các công cụ lập báo cáo dễ sử dụng hơn."
+   }
+  ],
+  "forms": [
+   "GUIs"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/gui.webp",
+  "level": "B2",
+  "phonetic": "/ˈɡuːi/",
+  "phonetic_uk": "/ˈɡuːi/",
+  "phonetic_us": "/ˈɡuːi/",
+  "phrases": [
+   {
+    "phrase": "GUI-based",
+    "meaning": "được xây dựng hoặc vận hành thông qua giao diện người dùng đồ họa"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The new accounting software has a simple GUI that requires little training.",
+   "vi": "Phần mềm kế toán mới có giao diện đồ họa đơn giản, không cần đào tạo nhiều."
+  },
+  "related": [
+   "user interface"
+  ],
+  "senses": [
+   "Giao diện người dùng đồ họa, cho phép người dùng thao tác với phần mềm qua các biểu tượng, cửa sổ và trình đơn.",
+   "Cách tương tác với máy tính bằng các thành phần hiển thị thay vì nhập lệnh bằng văn bản."
+  ],
+  "synonyms": [
+   "user interface"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:19:02.899Z",
+  "word": "gui",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/gui.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/gui.mp3"
+ },
+ {
+  "_id": "6ab7936e4cf38ae033048870",
+  "search_key": "html",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/html.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:42:06.876Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please send the HTML file to the web design team.",
+    "vi": "Vui lòng gửi tệp HTML cho nhóm thiết kế web."
+   },
+   {
+    "en": "The developer used HTML to update the company website.",
+    "vi": "Nhà phát triển đã dùng HTML để cập nhật trang web của công ty."
+   },
+   {
+    "en": "Our newsletter is available as an HTML email.",
+    "vi": "Bản tin của chúng tôi có định dạng email HTML."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/html.webp",
+  "level": "B1",
+  "phonetic": "/ˌeɪtʃ tiː em ˈel/",
+  "phonetic_uk": "/ˌeɪtʃ tiː em ˈel/",
+  "phonetic_us": "/ˌeɪtʃ tiː em ˈel/",
+  "phrases": [
+   {
+    "phrase": "HTML file",
+    "meaning": "tệp chứa mã HTML"
+   },
+   {
+    "phrase": "HTML code",
+    "meaning": "mã được viết bằng HTML"
+   },
+   {
+    "phrase": "HTML email",
+    "meaning": "email có định dạng và nội dung được tạo bằng HTML"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please send the HTML file to the web design team.",
+   "vi": "Vui lòng gửi tệp HTML cho nhóm thiết kế web."
+  },
+  "related": [],
+  "senses": [
+   "Ngôn ngữ đánh dấu dùng để tạo cấu trúc và nội dung cho các trang web.",
+   "Mã hoặc tệp được viết bằng ngôn ngữ HTML."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:24:48.238Z",
+  "word": "html",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/html.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/html.mp3"
+ },
+ {
+  "_id": "6ab7937b4cf38ae03304887a",
+  "search_key": "http",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/http.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:42:19.090Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The website uses http to transfer information between the browser and the server.",
+    "vi": "Trang web sử dụng HTTP để truyền thông tin giữa trình duyệt và máy chủ."
+   },
+   {
+    "en": "Please check whether the link begins with http or https before sharing it with the client.",
+    "vi": "Vui lòng kiểm tra xem đường liên kết bắt đầu bằng http hay https trước khi chia sẻ với khách hàng."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/http.webp",
+  "level": "B2",
+  "phonetic": "/ˌeɪtʃ tiː tiː ˈpiː/",
+  "phonetic_uk": "/ˌeɪtʃ tiː tiː ˈpiː/",
+  "phonetic_us": "/ˌeɪtʃ tiː tiː ˈpiː/",
+  "phrases": [
+   {
+    "phrase": "HTTP request",
+    "meaning": "yêu cầu HTTP được gửi từ trình duyệt hoặc ứng dụng đến máy chủ"
+   },
+   {
+    "phrase": "HTTP server",
+    "meaning": "máy chủ xử lý các yêu cầu HTTP"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The website uses http to transfer information between the browser and the server.",
+   "vi": "Trang web sử dụng HTTP để truyền thông tin giữa trình duyệt và máy chủ."
+  },
+  "related": [],
+  "senses": [
+   "Giao thức truyền tải siêu văn bản, dùng để trao đổi dữ liệu giữa trình duyệt và máy chủ web",
+   "Tiền tố trong địa chỉ web cho biết trang web sử dụng giao thức HTTP"
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:24:57.849Z",
+  "word": "http",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/http.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/http.mp3"
+ },
+ {
+  "_id": "6ab793ed4cf38ae0330488b3",
+  "search_key": "ide",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/ide.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T09:44:13.160Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The development team uses an IDE to build and test the new application.",
+    "vi": "Nhóm phát triển dùng một môi trường phát triển tích hợp để xây dựng và kiểm thử ứng dụng mới."
+   },
+   {
+    "en": "Please install the IDE before the training session begins.",
+    "vi": "Vui lòng cài đặt môi trường phát triển tích hợp trước khi buổi đào tạo bắt đầu."
+   }
+  ],
+  "forms": [
+   "IDEs"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/ide.webp",
+  "level": "B2",
+  "phonetic": "/ˌaɪ diː ˈiː/",
+  "phonetic_uk": "/ˌaɪ diː ˈiː/",
+  "phonetic_us": "/ˌaɪ diː ˈiː/",
+  "phrases": [
+   {
+    "phrase": "integrated development environment",
+    "meaning": "môi trường phát triển tích hợp"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The development team uses an IDE to build and test the new application.",
+   "vi": "Nhóm phát triển dùng một môi trường phát triển tích hợp để xây dựng và kiểm thử ứng dụng mới."
+  },
+  "related": [],
+  "senses": [
+   "Môi trường phát triển tích hợp, kết hợp các công cụ viết, biên dịch và gỡ lỗi mã nguồn.",
+   "Phần mềm lập trình giúp nhà phát triển tạo, chạy và kiểm thử ứng dụng."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:25:51.436Z",
+  "word": "ide",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/ide.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/ide.mp3"
+ },
+ {
+  "_id": "6ab798854cf38ae033048ac9",
+  "search_key": "kernel",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/kernel.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T10:03:49.991Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The kernel of the proposal is to reduce delivery costs.",
+    "vi": "Ý cốt lõi của đề xuất là giảm chi phí giao hàng."
+   },
+   {
+    "en": "Our IT team updated the Linux kernel to improve system security.",
+    "vi": "Đội ngũ CNTT của chúng tôi đã cập nhật nhân Linux để cải thiện bảo mật hệ thống."
+   },
+   {
+    "en": "The supplier included roasted corn kernels in the snack order.",
+    "vi": "Nhà cung cấp đã thêm hạt ngô rang vào đơn đặt hàng đồ ăn nhẹ."
+   }
+  ],
+  "forms": [
+   "kernels"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/kernel.webp",
+  "level": "B2",
+  "phonetic": "/ˈkɝː.nəl/",
+  "phonetic_uk": "/ˈkɜː.nəl/",
+  "phonetic_us": "/ˈkɝː.nəl/",
+  "phrases": [
+   {
+    "phrase": "a kernel of truth",
+    "meaning": "một phần sự thật trong một câu chuyện hoặc lời nhận định"
+   },
+   {
+    "phrase": "the kernel of an idea",
+    "meaning": "ý tưởng cốt lõi"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The kernel of the proposal is to reduce delivery costs.",
+   "vi": "Ý cốt lõi của đề xuất là giảm chi phí giao hàng."
+  },
+  "related": [
+   "core",
+   "essence",
+   "heart"
+  ],
+  "senses": [
+   "Nhân hoặc hạt bên trong một loại quả, đặc biệt là hạt ngô",
+   "Phần cốt lõi hoặc ý chính của một vấn đề hay kế hoạch",
+   "Phần trung tâm của hệ điều hành, quản lý các tài nguyên và hoạt động cơ bản của máy tính"
+  ],
+  "synonyms": [
+   "core",
+   "essence",
+   "heart"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:34:24.416Z",
+  "word": "kernel",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/kernel.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/kernel.mp3"
+ },
+ {
+  "_id": "6ab799614cf38ae033048b3f",
+  "search_key": "lan",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/lan.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T10:07:29.035Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The office LAN allows employees to share files securely.",
+    "vi": "Mạng LAN của văn phòng cho phép nhân viên chia sẻ tệp một cách an toàn."
+   },
+   {
+    "en": "Please contact IT if your computer cannot connect to the LAN.",
+    "vi": "Vui lòng liên hệ bộ phận CNTT nếu máy tính của bạn không thể kết nối với mạng LAN."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/lan.webp",
+  "level": "B2",
+  "phonetic": "/læn/",
+  "phonetic_uk": "/læn/",
+  "phonetic_us": "/læn/",
+  "phrases": [
+   {
+    "phrase": "local area network",
+    "meaning": "mạng máy tính cục bộ"
+   },
+   {
+    "phrase": "LAN connection",
+    "meaning": "kết nối mạng cục bộ"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The office LAN allows employees to share files securely.",
+   "vi": "Mạng LAN của văn phòng cho phép nhân viên chia sẻ tệp một cách an toàn."
+  },
+  "related": [],
+  "senses": [
+   "Mạng máy tính kết nối các thiết bị trong một khu vực giới hạn như văn phòng hoặc tòa nhà.",
+   "Hệ thống mạng nội bộ cho phép người dùng trong cùng một địa điểm chia sẻ dữ liệu và thiết bị."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:36:13.929Z",
+  "word": "lan",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/lan.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/lan.mp3"
+ },
+ {
+  "_id": "6ab799a24cf38ae033048b62",
+  "search_key": "latency",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/latency.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T10:08:34.369Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The new server reduced latency during peak business hours.",
+    "vi": "Máy chủ mới đã giảm độ trễ trong giờ cao điểm."
+   },
+   {
+    "en": "Customers reported high latency when accessing the company portal.",
+    "vi": "Khách hàng phản ánh độ trễ cao khi truy cập cổng thông tin của công ty."
+   },
+   {
+    "en": "We need to measure latency before launching the video service.",
+    "vi": "Chúng ta cần đo độ trễ trước khi ra mắt dịch vụ video."
+   }
+  ],
+  "forms": [
+   "latencies"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/latency.webp",
+  "level": "B2",
+  "phonetic": "/ˈleɪtənsi/",
+  "phonetic_uk": "/ˈleɪtənsi/",
+  "phonetic_us": "/ˈleɪtənsi/",
+  "phrases": [
+   {
+    "phrase": "network latency",
+    "meaning": "độ trễ của mạng"
+   },
+   {
+    "phrase": "low latency",
+    "meaning": "độ trễ thấp"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The new server reduced latency during peak business hours.",
+   "vi": "Máy chủ mới đã giảm độ trễ trong giờ cao điểm."
+  },
+  "related": [
+   "delay",
+   "lag"
+  ],
+  "senses": [
+   "độ trễ trong quá trình truyền dữ liệu hoặc phản hồi của hệ thống",
+   "khoảng thời gian từ khi một sự kiện xảy ra đến khi phản hồi hoặc kết quả xuất hiện"
+  ],
+  "synonyms": [
+   "delay",
+   "lag"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:36:49.635Z",
+  "word": "latency",
+  "word_family": [
+   {
+    "word": "latent",
+    "pos": "adj",
+    "meaning": "tiềm ẩn, chưa biểu hiện"
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/latency.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/latency.mp3"
+ },
+ {
+  "_id": "6ab79eb44cf38ae033048dc9",
+  "search_key": "metadata",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/metadata.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T10:30:12.236Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please include the metadata when you upload the report.",
+    "vi": "Vui lòng đính kèm siêu dữ liệu khi bạn tải báo cáo lên."
+   },
+   {
+    "en": "The metadata shows when the file was created and last updated.",
+    "vi": "Siêu dữ liệu cho biết tệp được tạo và cập nhật lần cuối khi nào."
+   },
+   {
+    "en": "Our team uses metadata to organize client records.",
+    "vi": "Nhóm chúng tôi sử dụng siêu dữ liệu để sắp xếp hồ sơ khách hàng."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/metadata.webp",
+  "level": "C1",
+  "phonetic": "/ˈmetəˌdeɪtə/",
+  "phonetic_uk": "/ˈmetəˌdeɪtə/",
+  "phonetic_us": "/ˈmetəˌdeɪtə/",
+  "phrases": [
+   {
+    "phrase": "metadata field",
+    "meaning": "trường siêu dữ liệu chứa một thông tin cụ thể"
+   },
+   {
+    "phrase": "metadata about something",
+    "meaning": "siêu dữ liệu về một đối tượng hoặc tài liệu"
+   },
+   {
+    "phrase": "metadata management",
+    "meaning": "việc quản lý siêu dữ liệu"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please include the metadata when you upload the report.",
+   "vi": "Vui lòng đính kèm siêu dữ liệu khi bạn tải báo cáo lên."
+  },
+  "related": [],
+  "senses": [
+   "Thông tin mô tả các dữ liệu khác, chẳng hạn như nguồn gốc, định dạng hoặc thời điểm tạo dữ liệu.",
+   "Thông tin dùng để phân loại, tìm kiếm và quản lý tài liệu hoặc hồ sơ trong hệ thống."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:46:45.776Z",
+  "word": "metadata",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/metadata.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/metadata.mp3"
+ },
+ {
+  "_id": "6ab7ce674cf38ae03304a184",
+  "search_key": "middleware",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/middleware.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T13:53:43.333Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The new middleware allows our accounting software to exchange data with the inventory system.",
+    "vi": "Phần mềm trung gian mới cho phép phần mềm kế toán trao đổi dữ liệu với hệ thống quản lý hàng tồn kho."
+   },
+   {
+    "en": "Our IT team is testing middleware before connecting the customer database to the website.",
+    "vi": "Nhóm CNTT đang kiểm thử phần mềm trung gian trước khi kết nối cơ sở dữ liệu khách hàng với trang web."
+   },
+   {
+    "en": "The middleware reduces the time needed to integrate the company’s systems.",
+    "vi": "Phần mềm trung gian giúp rút ngắn thời gian cần thiết để tích hợp các hệ thống của công ty."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/middleware.webp",
+  "level": "C1",
+  "phonetic": "/ˈmɪdəlwer/",
+  "phonetic_uk": "/ˈmɪdəlweə(r)/",
+  "phonetic_us": "/ˈmɪdəlwer/",
+  "phrases": [
+   {
+    "phrase": "middleware layer",
+    "meaning": "lớp phần mềm trung gian kết nối các thành phần của hệ thống"
+   },
+   {
+    "phrase": "middleware solution",
+    "meaning": "giải pháp phần mềm trung gian giúp các hệ thống giao tiếp hoặc tích hợp với nhau"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The new middleware allows our accounting software to exchange data with the inventory system.",
+   "vi": "Phần mềm trung gian mới cho phép phần mềm kế toán trao đổi dữ liệu với hệ thống quản lý hàng tồn kho."
+  },
+  "related": [],
+  "senses": [
+   "Phần mềm trung gian kết nối các ứng dụng hoặc hệ thống khác nhau để chúng trao đổi dữ liệu.",
+   "Lớp phần mềm nằm giữa các ứng dụng và hệ điều hành hoặc cơ sở dữ liệu, giúp điều phối hoạt động của chúng."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:59:14.203Z",
+  "word": "middleware",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/middleware.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/middleware.mp3"
+ },
+ {
+  "_id": "6ab7a0fd4cf38ae033048ef2",
+  "search_key": "mvp",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/mvp.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T10:39:57.633Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The product team will launch an MVP next month to test customer demand.",
+    "vi": "Nhóm sản phẩm sẽ ra mắt một sản phẩm khả dụng tối thiểu vào tháng tới để kiểm tra nhu cầu của khách hàng."
+   },
+   {
+    "en": "After leading the team to its best sales results, Lina was named the MVP.",
+    "vi": "Sau khi dẫn dắt nhóm đạt kết quả bán hàng tốt nhất, Lina được vinh danh là thành viên xuất sắc nhất."
+   },
+   {
+    "en": "We built an MVP before investing in the full software platform.",
+    "vi": "Chúng tôi đã xây dựng một sản phẩm khả dụng tối thiểu trước khi đầu tư vào toàn bộ nền tảng phần mềm."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/mvp.webp",
+  "level": "B2",
+  "phonetic": "/ˌem viː ˈpiː/",
+  "phonetic_uk": "/ˌem viː ˈpiː/",
+  "phonetic_us": "/ˌem viː ˈpiː/",
+  "phrases": [
+   {
+    "phrase": "minimum viable product",
+    "meaning": "Sản phẩm khả dụng tối thiểu được đưa ra để kiểm tra nhu cầu thị trường."
+   },
+   {
+    "phrase": "most valuable player",
+    "meaning": "Người chơi hoặc thành viên có đóng góp nổi bật nhất."
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The product team will launch an MVP next month to test customer demand.",
+   "vi": "Nhóm sản phẩm sẽ ra mắt một sản phẩm khả dụng tối thiểu vào tháng tới để kiểm tra nhu cầu của khách hàng."
+  },
+  "related": [],
+  "senses": [
+   "Sản phẩm khả dụng tối thiểu được tạo ra để thử nghiệm ý tưởng và thu thập phản hồi của khách hàng.",
+   "Người có đóng góp hoặc thành tích nổi bật nhất trong một đội nhóm, tổ chức hoặc cuộc thi."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T16:51:44.249Z",
+  "word": "mvp",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/mvp.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/mvp.mp3"
+ },
+ {
+  "_id": "6ab7b1ca4cf38ae033049652",
+  "search_key": "rom",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/rom.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T11:51:38.505Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The technician replaced the ROM chip in the office equipment.",
+    "vi": "Kỹ thuật viên đã thay chip ROM trong thiết bị văn phòng."
+   },
+   {
+    "en": "The project team prepared a ROM estimate before drafting the detailed budget.",
+    "vi": "Nhóm dự án đã chuẩn bị một ước tính sơ bộ trước khi lập ngân sách chi tiết."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/rom.webp",
+  "level": "B2",
+  "phonetic": "/ˌɑːr oʊ ˈɛm/",
+  "phonetic_uk": "/ˌɑːr əʊ ˈem/",
+  "phonetic_us": "/ˌɑːr oʊ ˈɛm/",
+  "phrases": [
+   {
+    "phrase": "ROM chip",
+    "meaning": "chip bộ nhớ chỉ đọc"
+   },
+   {
+    "phrase": "ROM estimate",
+    "meaning": "ước tính sơ bộ về quy mô hoặc chi phí"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The technician replaced the ROM chip in the office equipment.",
+   "vi": "Kỹ thuật viên đã thay chip ROM trong thiết bị văn phòng."
+  },
+  "related": [],
+  "senses": [
+   "Bộ nhớ chỉ đọc, loại bộ nhớ máy tính lưu dữ liệu cố định.",
+   "Ước tính sơ bộ về quy mô hoặc chi phí của một dự án."
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:22:51.460Z",
+  "word": "rom",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/rom.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/rom.mp3"
+ },
+ {
+  "_id": "6ab7b2654cf38ae03304969b",
+  "search_key": "runtime",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/runtime.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T11:54:13.030Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The software displays a runtime error when the report is opened.",
+    "vi": "Phần mềm hiển thị lỗi khi chạy khi báo cáo được mở."
+   },
+   {
+    "en": "The presentation has a runtime of about 40 minutes.",
+    "vi": "Bài thuyết trình có thời lượng khoảng 40 phút."
+   },
+   {
+    "en": "The backup system has a runtime of eight hours on battery power.",
+    "vi": "Hệ thống dự phòng có thể hoạt động tám giờ bằng pin."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/runtime.webp",
+  "level": "B2",
+  "phonetic": "/ˈrʌnˌtaɪm/",
+  "phonetic_uk": "/ˈrʌnˌtaɪm/",
+  "phonetic_us": "/ˈrʌnˌtaɪm/",
+  "phrases": [
+   {
+    "phrase": "runtime error",
+    "meaning": "lỗi xảy ra khi chương trình đang chạy"
+   },
+   {
+    "phrase": "runtime environment",
+    "meaning": "môi trường cần thiết để chương trình chạy"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The software displays a runtime error when the report is opened.",
+   "vi": "Phần mềm hiển thị lỗi khi chạy khi báo cáo được mở."
+  },
+  "related": [
+   "duration",
+   "operating time"
+  ],
+  "senses": [
+   "Thời gian một chương trình hoặc ứng dụng đang được thực thi.",
+   "Thời lượng của phim, chương trình hoặc sự kiện.",
+   "Khoảng thời gian máy móc hoặc hệ thống có thể hoạt động."
+  ],
+  "synonyms": [
+   "duration",
+   "operating time"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:23:42.056Z",
+  "word": "runtime",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/runtime.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/runtime.mp3"
+ },
+ {
+  "_id": "6ab7b3374cf38ae033049711",
+  "search_key": "scalability",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/scalability.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T11:57:43.728Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "The cloud platform offers the scalability we need as customer numbers grow.",
+    "vi": "Nền tảng đám mây có khả năng mở rộng mà chúng tôi cần khi số lượng khách hàng tăng lên."
+   },
+   {
+    "en": "We evaluated the scalability of the new booking system before its launch.",
+    "vi": "Chúng tôi đánh giá khả năng mở rộng của hệ thống đặt chỗ mới trước khi đưa vào sử dụng."
+   },
+   {
+    "en": "The business plan must address scalability without significantly increasing operating costs.",
+    "vi": "Kế hoạch kinh doanh phải đề cập đến khả năng mở rộng mà không làm tăng đáng kể chi phí vận hành."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/scalability.webp",
+  "level": "C1",
+  "phonetic": "/ˌskeɪləˈbɪləti/",
+  "phonetic_uk": "/ˌskeɪləˈbɪləti/",
+  "phonetic_us": "/ˌskeɪləˈbɪləti/",
+  "phrases": [
+   {
+    "phrase": "scalability of a system",
+    "meaning": "khả năng mở rộng của một hệ thống"
+   },
+   {
+    "phrase": "business scalability",
+    "meaning": "khả năng mở rộng quy mô kinh doanh"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The cloud platform offers the scalability we need as customer numbers grow.",
+   "vi": "Nền tảng đám mây có khả năng mở rộng mà chúng tôi cần khi số lượng khách hàng tăng lên."
+  },
+  "related": [],
+  "senses": [
+   "khả năng mở rộng quy mô hoạt động, doanh nghiệp hoặc dịch vụ",
+   "khả năng của hệ thống xử lý lượng công việc hoặc người dùng tăng lên mà không giảm hiệu suất đáng kể",
+   "khả năng phát triển mà không làm chi phí tăng tương ứng"
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:25:11.377Z",
+  "word": "scalability",
+  "word_family": [
+   {
+    "word": "scalable",
+    "pos": "adj",
+    "meaning": "có khả năng mở rộng quy mô"
+   },
+   {
+    "word": "scale",
+    "pos": "v",
+    "meaning": "mở rộng hoặc điều chỉnh quy mô"
+   }
+  ],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/scalability.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/scalability.mp3"
+ },
+ {
+  "_id": "6ab7b8ea4cf38ae0330499a2",
+  "search_key": "sql",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/sql.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T12:22:02.467Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please use SQL to retrieve the sales figures for the last quarter.",
+    "vi": "Vui lòng dùng SQL để lấy số liệu bán hàng của quý trước."
+   },
+   {
+    "en": "Our analyst wrote an SQL query to compare monthly expenses.",
+    "vi": "Chuyên viên phân tích của chúng tôi đã viết một câu truy vấn SQL để so sánh chi phí hằng tháng."
+   },
+   {
+    "en": "The new reporting tool connects to the SQL database.",
+    "vi": "Công cụ lập báo cáo mới kết nối với cơ sở dữ liệu SQL."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/sql.webp",
+  "level": "B2",
+  "phonetic": "/ˌes kjuː ˈel/",
+  "phonetic_uk": "/ˌes kjuː ˈel/",
+  "phonetic_us": "/ˌes kjuː ˈel/",
+  "phrases": [
+   {
+    "phrase": "SQL query",
+    "meaning": "câu truy vấn SQL"
+   },
+   {
+    "phrase": "SQL database",
+    "meaning": "cơ sở dữ liệu được quản lý hoặc truy vấn bằng SQL"
+   },
+   {
+    "phrase": "write SQL",
+    "meaning": "viết câu lệnh SQL"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please use SQL to retrieve the sales figures for the last quarter.",
+   "vi": "Vui lòng dùng SQL để lấy số liệu bán hàng của quý trước."
+  },
+  "related": [],
+  "senses": [
+   "ngôn ngữ dùng để truy vấn và quản lý dữ liệu trong cơ sở dữ liệu quan hệ",
+   "câu lệnh viết bằng ngôn ngữ SQL để lấy hoặc thao tác dữ liệu"
+  ],
+  "synonyms": [],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:33:24.731Z",
+  "word": "sql",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/sql.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/sql.mp3"
+ },
+ {
+  "_id": "6ab7be5b4cf38ae033049c09",
+  "search_key": "throughput",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/throughput.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T12:45:15.838Z",
+  "dependent_preposition": "of",
+  "examples": [
+   {
+    "en": "The new equipment increased factory throughput by 15%.",
+    "vi": "Thiết bị mới đã tăng sản lượng xử lý của nhà máy lên 15%."
+   },
+   {
+    "en": "We need to improve order throughput without hiring additional staff.",
+    "vi": "Chúng ta cần tăng lượng đơn hàng được xử lý mà không tuyển thêm nhân viên."
+   },
+   {
+    "en": "The network's data throughput dropped during peak hours.",
+    "vi": "Lưu lượng dữ liệu của mạng giảm vào giờ cao điểm."
+   }
+  ],
+  "forms": [],
+  "image_url": "https://cdn.toeicwithjames.com/images/throughput.webp",
+  "level": "B2",
+  "phonetic": "/ˈθruːˌpʊt/",
+  "phonetic_uk": "/ˈθruːpʊt/",
+  "phonetic_us": "/ˈθruːˌpʊt/",
+  "phrases": [
+   {
+    "phrase": "increase throughput",
+    "meaning": "tăng lượng công việc hoặc sản phẩm được xử lý"
+   },
+   {
+    "phrase": "production throughput",
+    "meaning": "sản lượng được xử lý hoặc sản xuất trong một khoảng thời gian"
+   },
+   {
+    "phrase": "data throughput",
+    "meaning": "lượng dữ liệu được truyền hoặc xử lý trong một khoảng thời gian"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "The new equipment increased factory throughput by 15%.",
+   "vi": "Thiết bị mới đã tăng sản lượng xử lý của nhà máy lên 15%."
+  },
+  "related": [
+   "output",
+   "production"
+  ],
+  "senses": [
+   "Lượng công việc hoặc sản phẩm được xử lý hay sản xuất trong một khoảng thời gian",
+   "Công suất xử lý hoặc sản xuất của một hệ thống",
+   "Lượng dữ liệu được truyền hoặc xử lý trong một khoảng thời gian"
+  ],
+  "synonyms": [
+   "output",
+   "production"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:43:44.417Z",
+  "word": "throughput",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/throughput.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/throughput.mp3"
+ },
+ {
+  "_id": "6ab7c2564cf38ae033049ddc",
+  "search_key": "url",
+  "antonyms": [],
+  "audio_url": "https://cdn.toeicwithjames.com/audio/us/url.mp3",
+  "confusable_with": null,
+  "created_at": "2026-09-26T13:02:14.612Z",
+  "dependent_preposition": null,
+  "examples": [
+   {
+    "en": "Please include the url of the report in your email.",
+    "vi": "Vui lòng đưa địa chỉ web của báo cáo vào email."
+   },
+   {
+    "en": "The customer cannot open the url we sent yesterday.",
+    "vi": "Khách hàng không thể mở địa chỉ web chúng tôi đã gửi hôm qua."
+   },
+   {
+    "en": "Check that the url is correct before publishing the announcement.",
+    "vi": "Hãy kiểm tra địa chỉ web chính xác trước khi đăng thông báo."
+   }
+  ],
+  "forms": [
+   "URLs"
+  ],
+  "image_url": "https://cdn.toeicwithjames.com/images/url.webp",
+  "level": "B1",
+  "phonetic": "/ˌjuː ɑːr ˈɛl/",
+  "phonetic_uk": "/ˌjuː ɑː ˈɛl/",
+  "phonetic_us": "/ˌjuː ɑːr ˈɛl/",
+  "phrases": [
+   {
+    "phrase": "website URL",
+    "meaning": "địa chỉ của một trang web"
+   },
+   {
+    "phrase": "URL shortener",
+    "meaning": "công cụ rút gọn địa chỉ web"
+   },
+   {
+    "phrase": "URL bar",
+    "meaning": "thanh địa chỉ trên trình duyệt"
+   }
+  ],
+  "pos": [
+   "n"
+  ],
+  "primary_example": {
+   "en": "Please include the url of the report in your email.",
+   "vi": "Vui lòng đưa địa chỉ web của báo cáo vào email."
+  },
+  "related": [
+   "web address",
+   "internet address"
+  ],
+  "senses": [
+   "Địa chỉ web dùng để truy cập một trang hoặc tài nguyên trên Internet.",
+   "Chuỗi ký tự xác định vị trí của một tài nguyên trực tuyến, thường gồm giao thức, tên miền và đường dẫn."
+  ],
+  "synonyms": [
+   "web address",
+   "internet address"
+  ],
+  "tags": [
+   "ai-gen"
+  ],
+  "target_parts": [],
+  "updated_at": "2026-09-26T17:49:24.537Z",
+  "word": "url",
+  "word_family": [],
+  "audio_uk": "https://cdn.toeicwithjames.com/audio/uk/url.mp3",
+  "audio_us": "https://cdn.toeicwithjames.com/audio/us/url.mp3"
+ }
+]
