@@ -870,6 +870,55 @@ app.post("/api/review/notify-claim", async (c) => {
   return c.json({ claim: r.meta.changes > 0 });
 });
 
+// Thanh % đạt aim: lưu đủ số từ của bậc điểm mục tiêu là 100% — từ nào cũng
+// tính, không riêng bộ TOEIC. Biên thuộc bậc trên (500 → 3.000 từ), dưới 300
+// tính như 300+. BẢN SAO GOAL_TIERS của toeic-with-james/src/lib/
+// vocab-goal.ts — sửa một nơi thì sửa cả hai.
+const GOAL_TIERS = [
+  { min: 300, words: 1500 },
+  { min: 500, words: 3000 },
+  { min: 650, words: 5000 },
+  { min: 750, words: 8000 },
+];
+const goalWords = (score: number) =>
+  GOAL_TIERS.reduce((w, t) => (score >= t.min ? t.words : w), GOAL_TIERS[0].words);
+
+// target_score là cột users của site (chung james-db) — web /hoc/ho-so và
+// popup extension cùng ghi vào đây. saved = review_summary.total.
+const goalOf = async (userId: string) => {
+  const [u, sum] = await Promise.all([
+    env.DB.prepare("SELECT target_score FROM users WHERE id = ?")
+      .bind(userId)
+      .first<{ target_score: number | null }>(),
+    getSummaryRow(env.DB, userId, Date.now()),
+  ]);
+  const targetScore =
+    typeof u?.target_score === "number" ? u.target_score : null;
+  return {
+    targetScore,
+    words: targetScore == null ? null : goalWords(targetScore),
+    saved: sum.total,
+    tiers: GOAL_TIERS,
+  };
+};
+
+app.get("/api/goal", async (c) =>
+  c.json(await goalOf((await getUser(c.req.raw))!.userId))
+);
+
+app.post("/api/goal", async (c) => {
+  const body: any = await c.req.json().catch(() => null);
+  const score = body?.targetScore;
+  if (!Number.isInteger(score) || score < 10 || score > 990)
+    return c.json({ error: "invalid targetScore" }, 400);
+  const userId = (await getUser(c.req.raw))!.userId;
+  const r = await env.DB.prepare("UPDATE users SET target_score = ? WHERE id = ?")
+    .bind(score, userId)
+    .run();
+  if (!r.meta.changes) return c.json({ error: "user not found" }, 404);
+  return c.json(await goalOf(userId));
+});
+
 // One-time bulk import of pre-auth local saved_words. Local copies
 // predate wordId, so resolve each saved word's key to its dictionary
 // id; OR IGNORE keeps existing entries.
